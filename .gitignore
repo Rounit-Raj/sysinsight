@@ -1,0 +1,23 @@
+# Build artifacts
+build/
+*.o
+*.out
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Data (regenerable via collector)
+data/*.csv
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Editor/OS junk
+.vscode/
+.idea/
+*.swp
+.DS_Store
