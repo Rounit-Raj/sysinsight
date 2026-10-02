@@ -14,8 +14,8 @@ cmake ..
 make
 
 ##Run
-1. Start the collector
-2. Start the dashboard
+1. Start the collector(./build/collector)
+2. Start the dashboard(python dashboard.py)
 
 ## Requirements
 -Linux, g++ with c++17,CMake
