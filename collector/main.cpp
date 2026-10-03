@@ -6,6 +6,7 @@
 #include <thread>
 #include <ctime>
 #include <csignal>
+#include "db.hpp"
 #include <filesystem>
 #include <vector>
 #include <unordered_map>
@@ -197,6 +198,9 @@ int main() {
     std::signal(SIGINT, handleSignal);
     std::signal(SIGTERM, handleSignal);
 
+    Database db;
+    if (!db.open("data/sysinsight.db")) return 1;
+
     const std::string csvPath = "data/readings.csv";
     
     //Open in append mode if you don't have some big cojnomes
@@ -235,6 +239,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     while (g_running) {
+        db.begin();
         CpuTimes currCpu = readCpuTimes();
         double cpuPercent = computeCpuUsagePercent(prevCpu, currCpu);
         double ramPercent = readMemUsagePercent();
@@ -243,6 +248,7 @@ int main() {
 
         csv << timestamp << "," << cpuPercent << "," << ramPercent << "," << loadAvg << "\n";
         csv.flush(); //ensure that it's fast as fuck boi
+        db.insertSample(timestamp, cpuPercent, ramPercent, loadAvg);
 
         std::cout << timestamp << " | CPU: " << cpuPercent << "% | RAM: "
                   << ramPercent << "% | Load: " << loadAvg << "\n";
@@ -262,6 +268,8 @@ int main() {
             procCsv << timestamp << "," << rows[i].pid << "," << rows[i].proc.name << ","
                     << rows[i].pct << "," << rows[i].proc.rssKb / 1024.0 << "\n";
         }
+        for (size_t i = 0; i < std::min<size_t>(rows.size(), 5); i++)
+            db.insertProcess(timestamp, rows[i].pid, rows[i].proc.name, rows[i].pct, rows[i].proc.rssKb / 1024.0);
         procCsv.flush();
         prevProcs = std::move(currProcs);
         IoSample currIo = readIo();
@@ -272,7 +280,9 @@ int main() {
         ioCsv << timestamp << "," << diskRead << "," << diskWrite << ","
               << netRx << "," << netTx << "\n";
         ioCsv.flush();
+        db.insertIo(timestamp, diskRead, diskWrite, netRx, netTx);
         prevIo = currIo;
+        db.commit();
         prevCpu = currCpu;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     } 
