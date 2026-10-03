@@ -21,3 +21,11 @@ make
 ## Requirements
 -Linux, g++ with c++17,CMake
 -Python 3 with pandas and scikit-learn
+##Architecture
+```mermaid
+flowchart LR
+    A["/proc/stat, /proc/meminfo, /proc/loadavg"] --> B["C++ collector"]
+    B --> C[("data/readings.csv")]
+    C --> D["Python ML: Isolation Forest"]
+    D --> E["Rich terminal dashboard"]
+```
