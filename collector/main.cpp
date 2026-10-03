@@ -5,7 +5,12 @@
 #include <chrono>
 #include <thread>
 #include <ctime>
-
+#include <filesystem>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+#include <unistd.h>
+#include <tuple>
 // Holds one snapshot of /proc/stst's CPU line
 
 struct CpuTimes {
@@ -71,6 +76,58 @@ double readLoadAverage1Min() {
     return load1;
 }
 
+struct ProcSample {
+    long long ticks; //utime + stime
+    long long rssKb; //resident memory
+    std::string name;
+};
+
+struct ProcRow {
+    double pct;
+    int pid;
+    ProcSample proc;
+};
+
+//Reads CPU ticks and memory for every running process from /proc/[pid]/stat
+std::unordered_map<int, ProcSample> readAllProcesses() {
+     std::unordered_map<int, ProcSample> result;
+     long pageKb = sysconf(_SC_PAGESIZE) / 1024;
+
+     for (const auto& entry : std::filesystem::directory_iterator("/proc")) {
+         std::string dirName = entry.path().filename().string();
+         if (dirName.empty() || !std::all_of(dirName.begin(), dirName.end(), ::isdigit)) continue;
+
+         std::ifstream file(entry.path() / "stat");
+         std::string line;
+         if (!std::getline(file, line)) continue;
+
+         // process name is in (...) and may contain spaces, so find the last ')'
+         size_t open = line.find('(');
+         size_t close = line.rfind(')');
+         if (open == std::string::npos || close == std::string::npos) continue;
+
+         std::string name = line.substr(open + 1, close - open -1);
+         std::replace(name.begin(), name.end(), ',', '_');
+
+         std::istringstream iss(line.substr(close + 2));
+         std::vector<std::string> f;
+         std::string tok;
+         while (iss >> tok) f.push_back(tok);
+         if (f.size() < 22) continue;
+
+         try {
+             // After the name: f[11]=utime, f[12]=stime, f[21]=rss (in pages)
+             long long ticks = std::stoll(f[11]) + std::stoll(f[12]);
+             long long rssKb = std::stoll(f[21]) * pageKb;
+             result[std::stoi(dirName)] = {ticks, rssKb, name};
+         
+         } catch (...) {
+             continue; // process vanished or trash(bad data)
+         }
+    }
+    return result;
+}
+
 //Returns current timestamp as a string
 std::string currentTimestamp() {
     std::time_t now = std::time(nullptr);
@@ -86,6 +143,13 @@ int main() {
     bool fileIsNew = std::ifstream(csvPath).peek() == std::ifstream::traits_type::eof();
     std::ofstream csv(csvPath, std::ios::app);
 
+    const std::string procPath = "data/processes.csv";
+    bool procIsNew = std::ifstream(procPath).peek() == std::ifstream::traits_type::eof();
+    std::ofstream procCsv(procPath, std::ios::app);
+    if (procIsNew) {
+        procCsv << "timestamp,pid,name,cpu_percent,mem_mb\n";
+    }
+
     if (!csv.is_open()) {
         std::cerr << "Failed to open " << csvPath << " for writing.\n";
         return 1;
@@ -99,6 +163,7 @@ int main() {
               << " every 1 second. Press Ctrl+C to stop.\n";
  
     CpuTimes prevCpu = readCpuTimes();
+    auto prevProcs = readAllProcesses();
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     while (true) {
@@ -113,7 +178,24 @@ int main() {
 
         std::cout << timestamp << " | CPU: " << cpuPercent << "% | RAM: "
                   << ramPercent << "% | Load: " << loadAvg << "\n";
-
+       
+        auto currProcs = readAllProcesses();
+        long long totalDiff = currCpu.totalTime() - prevCpu.totalTime();
+        std::vector<ProcRow> rows;
+        for (const auto& kv : currProcs) {
+            auto it = prevProcs.find(kv.first);
+            if (it == prevProcs.end() || totalDiff <= 0) continue;
+            double pct = (double)(kv.second.ticks - it->second.ticks) / (double)totalDiff * 100.0;
+            rows.push_back({pct, kv.first, kv.second});
+        }
+        std::sort(rows.begin(), rows.end(),
+                  [](const ProcRow& a, const ProcRow& b) { return a.pct > b.pct; });
+        for (size_t i = 0; i < rows.size() && i < 5; i++) {
+            procCsv << timestamp << "," << rows[i].pid << "," << rows[i].proc.name << ","
+                    << rows[i].pct << "," << rows[i].proc.rssKb / 1024.0 << "\n";
+        }
+        procCsv.flush();
+        prevProcs = std::move(currProcs);
         prevCpu = currCpu;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     } 
