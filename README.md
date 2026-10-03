@@ -1,4 +1,5 @@
 #SysInsight
+![SysInsight dashboard](docs/dashboard.png)
 
 A lightweight system performce monitor and anomaly detector for linux.
 
