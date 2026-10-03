@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <unistd.h>
 #include <tuple>
+#include <cctype>
+
 // Holds one snapshot of /proc/stst's CPU line
 
 struct CpuTimes {
@@ -128,6 +130,54 @@ std::unordered_map<int, ProcSample> readAllProcesses() {
     return result;
 }
 
+struct IoSample {
+    long long diskReadSectors = 0, diskWriteSectors =0;
+    long long netRxBytes = 0, netTxBytes = 0;
+};
+
+//Reads cumulative disk and network counters
+IoSample readIo() {
+    IoSample s;
+     
+    std::ifstream disk("/proc/diskstats");
+    std::string line;
+    while (std::getline(disk, line)) {
+        std::istringstream iss(line);
+        int major, minor;
+        std::string name;
+        long long rc, rm, rs, rt, wc, wm, ws;
+        if (!(iss >> major >> minor >> name >> rc >> rm >> rs >> rt >> wc >> wm >> ws)) continue;
+
+        bool whole = false;
+        if (name.rfind("nvme", 0) == 0) whole = (name.find('p' , 4) == std::string::npos);
+        else if (name.rfind("sd", 0) == 0 || name.rfind("vd", 0) == 0) whole = !std::isdigit(name.back());
+        if (!whole) continue;
+        
+        s.diskReadSectors += rs;
+        s.diskWriteSectors += ws;
+}
+
+std::ifstream net("/proc/net/dev");
+std::getline(net, line);
+    std::getline(net, line);
+    while (std::getline(net, line)) {
+        size_t colon = line.find(':');
+        if (colon == std::string::npos) continue;
+        std::string iface = line.substr(0, colon);
+        iface.erase(0, iface.find_first_not_of(' '));
+        if (iface == "lo") continue;
+
+        std::istringstream iss(line.substr(colon + 1));
+        long long rx, skip, tx;
+        iss >> rx;
+        for (int i = 0; i < 7; i++) iss >> skip;
+        iss >> tx;
+        s.netRxBytes += rx;
+        s.netTxBytes += tx;
+    }
+    return s;
+}
+
 //Returns current timestamp as a string
 std::string currentTimestamp() {
     std::time_t now = std::time(nullptr);
@@ -150,6 +200,13 @@ int main() {
         procCsv << "timestamp,pid,name,cpu_percent,mem_mb\n";
     }
 
+    const std::string ioPath = "data/io.csv";
+    bool ioIsNew = std::ifstream(ioPath).peek() == std::ifstream::traits_type::eof();
+    std::ofstream ioCsv(ioPath, std::ios::app);
+    if (ioIsNew) {
+        ioCsv << "timestamp,disk_read_mb_s,disk_write_mb_s,net_rx_kb_s,net_tx_kb_s\n";
+    }
+
     if (!csv.is_open()) {
         std::cerr << "Failed to open " << csvPath << " for writing.\n";
         return 1;
@@ -164,6 +221,7 @@ int main() {
  
     CpuTimes prevCpu = readCpuTimes();
     auto prevProcs = readAllProcesses();
+    IoSample prevIo = readIo();
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     while (true) {
@@ -196,6 +254,15 @@ int main() {
         }
         procCsv.flush();
         prevProcs = std::move(currProcs);
+        IoSample currIo = readIo();
+        double diskRead  = (currIo.diskReadSectors  - prevIo.diskReadSectors)  * 512.0 / 1048576.0;
+        double diskWrite = (currIo.diskWriteSectors - prevIo.diskWriteSectors) * 512.0 / 1048576.0;
+        double netRx = (currIo.netRxBytes - prevIo.netRxBytes) / 1024.0;
+        double netTx = (currIo.netTxBytes - prevIo.netTxBytes) / 1024.0;
+        ioCsv << timestamp << "," << diskRead << "," << diskWrite << ","
+              << netRx << "," << netTx << "\n";
+        ioCsv.flush();
+        prevIo = currIo;
         prevCpu = currCpu;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     } 
