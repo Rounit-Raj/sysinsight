@@ -22,3 +22,7 @@ venv/
 *.swp
 .DS_Store
 .venv/
+#keep only the sample data in git
+!data/
+data/*
+!data/sample.csv
