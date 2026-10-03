@@ -6,6 +6,9 @@
 #include <thread>
 #include <ctime>
 #include <csignal>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
 #include "db.hpp"
 #include <filesystem>
 #include <vector>
@@ -194,65 +197,101 @@ void handleSignal(int) {
     g_running = 0;
 }
 
+// One second's worth of data, handed from the sampler to the writer
+struct Snapshot {
+    std::string timestamp;
+    double cpu = 0, ram = 0, load = 0;
+    std::vector<ProcRow> top;
+    double diskRead = 0, diskWrite = 0, netRx = 0, netTx = 0;
+};
+
+std::mutex g_mutex;
+std::condition_variable g_cv;
+std::queue<Snapshot> g_queue;
+bool g_done = false;
+
+// Writer thread: drains the queue and writes CSVs + database in batches
+void writerThread(Database* db, std::ofstream* csv, std::ofstream* procCsv, std::ofstream* ioCsv) {
+    while (true) {
+        std::vector<Snapshot> batch;
+        {
+            std::unique_lock<std::mutex> lock(g_mutex);
+            g_cv.wait(lock, [] { return !g_queue.empty() || g_done; });
+            while (!g_queue.empty()) {
+                batch.push_back(std::move(g_queue.front()));
+                g_queue.pop();
+            }
+            if (batch.empty() && g_done) return;
+        }
+
+        db->begin();
+        for (const auto& s : batch) {
+            *csv << s.timestamp << "," << s.cpu << "," << s.ram << "," << s.load << "\n";
+            db->insertSample(s.timestamp, s.cpu, s.ram, s.load);
+
+            for (const auto& r : s.top) {
+                *procCsv << s.timestamp << "," << r.pid << "," << r.proc.name << ","
+                         << r.pct << "," << r.proc.rssKb / 1024.0 << "\n";
+                db->insertProcess(s.timestamp, r.pid, r.proc.name, r.pct, r.proc.rssKb / 1024.0);
+            }
+
+            *ioCsv << s.timestamp << "," << s.diskRead << "," << s.diskWrite << ","
+                   << s.netRx << "," << s.netTx << "\n";
+            db->insertIo(s.timestamp, s.diskRead, s.diskWrite, s.netRx, s.netTx);
+        }
+        db->commit();
+        csv->flush();
+        procCsv->flush();
+        ioCsv->flush();
+    }
+}
+
 int main() {
     std::signal(SIGINT, handleSignal);
     std::signal(SIGTERM, handleSignal);
 
-    Database db;
-    if (!db.open("data/sysinsight.db")) return 1;
-
     const std::string csvPath = "data/readings.csv";
-    
-    //Open in append mode if you don't have some big cojnomes
     bool fileIsNew = std::ifstream(csvPath).peek() == std::ifstream::traits_type::eof();
     std::ofstream csv(csvPath, std::ios::app);
-
-    const std::string procPath = "data/processes.csv";
-    bool procIsNew = std::ifstream(procPath).peek() == std::ifstream::traits_type::eof();
-    std::ofstream procCsv(procPath, std::ios::app);
-    if (procIsNew) {
-        procCsv << "timestamp,pid,name,cpu_percent,mem_mb\n";
-    }
-
-    const std::string ioPath = "data/io.csv";
-    bool ioIsNew = std::ifstream(ioPath).peek() == std::ifstream::traits_type::eof();
-    std::ofstream ioCsv(ioPath, std::ios::app);
-    if (ioIsNew) {
-        ioCsv << "timestamp,disk_read_mb_s,disk_write_mb_s,net_rx_kb_s,net_tx_kb_s\n";
-    }
-
     if (!csv.is_open()) {
         std::cerr << "Failed to open " << csvPath << " for writing.\n";
         return 1;
     }
-    
-    if (fileIsNew) {
-        csv << "timestamp,cpu_percent,ram_percent,load_avg_1min\n";
-    }
+    if (fileIsNew) csv << "timestamp,cpu_percent,ram_percent,load_avg_1min\n";
 
-    std::cout << "SysInsight collector started. Logging to " << csvPath
-              << " every 1 second. Press Ctrl+C to stop.\n";
- 
+    const std::string procPath = "data/processes.csv";
+    bool procIsNew = std::ifstream(procPath).peek() == std::ifstream::traits_type::eof();
+    std::ofstream procCsv(procPath, std::ios::app);
+    if (procIsNew) procCsv << "timestamp,pid,name,cpu_percent,mem_mb\n";
+
+    const std::string ioPath = "data/io.csv";
+    bool ioIsNew = std::ifstream(ioPath).peek() == std::ifstream::traits_type::eof();
+    std::ofstream ioCsv(ioPath, std::ios::app);
+    if (ioIsNew) ioCsv << "timestamp,disk_read_mb_s,disk_write_mb_s,net_rx_kb_s,net_tx_kb_s\n";
+
+    Database db;
+    if (!db.open("data/sysinsight.db")) return 1;
+
+    std::cout << "SysInsight collector started (threaded). Press Ctrl+C to stop.\n";
+
     CpuTimes prevCpu = readCpuTimes();
     auto prevProcs = readAllProcesses();
     IoSample prevIo = readIo();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    std::thread writer(writerThread, &db, &csv, &procCsv, &ioCsv);
+
+    auto next = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    std::this_thread::sleep_until(next);
 
     while (g_running) {
-        db.begin();
+        Snapshot s;
+        s.timestamp = currentTimestamp();
+
         CpuTimes currCpu = readCpuTimes();
-        double cpuPercent = computeCpuUsagePercent(prevCpu, currCpu);
-        double ramPercent = readMemUsagePercent();
-        double loadAvg = readLoadAverage1Min();
-        std::string timestamp = currentTimestamp();
+        s.cpu = computeCpuUsagePercent(prevCpu, currCpu);
+        s.ram = readMemUsagePercent();
+        s.load = readLoadAverage1Min();
 
-        csv << timestamp << "," << cpuPercent << "," << ramPercent << "," << loadAvg << "\n";
-        csv.flush(); //ensure that it's fast as fuck boi
-        db.insertSample(timestamp, cpuPercent, ramPercent, loadAvg);
-
-        std::cout << timestamp << " | CPU: " << cpuPercent << "% | RAM: "
-                  << ramPercent << "% | Load: " << loadAvg << "\n";
-       
         auto currProcs = readAllProcesses();
         long long totalDiff = currCpu.totalTime() - prevCpu.totalTime();
         std::vector<ProcRow> rows;
@@ -264,30 +303,40 @@ int main() {
         }
         std::sort(rows.begin(), rows.end(),
                   [](const ProcRow& a, const ProcRow& b) { return a.pct > b.pct; });
-        for (size_t i = 0; i < rows.size() && i < 5; i++) {
-            procCsv << timestamp << "," << rows[i].pid << "," << rows[i].proc.name << ","
-                    << rows[i].pct << "," << rows[i].proc.rssKb / 1024.0 << "\n";
-        }
-        for (size_t i = 0; i < std::min<size_t>(rows.size(), 5); i++)
-            db.insertProcess(timestamp, rows[i].pid, rows[i].proc.name, rows[i].pct, rows[i].proc.rssKb / 1024.0);
-        procCsv.flush();
-        prevProcs = std::move(currProcs);
+        if (rows.size() > 5) rows.resize(5);
+        s.top = std::move(rows);
+
         IoSample currIo = readIo();
-        double diskRead  = (currIo.diskReadSectors  - prevIo.diskReadSectors)  * 512.0 / 1048576.0;
-        double diskWrite = (currIo.diskWriteSectors - prevIo.diskWriteSectors) * 512.0 / 1048576.0;
-        double netRx = (currIo.netRxBytes - prevIo.netRxBytes) / 1024.0;
-        double netTx = (currIo.netTxBytes - prevIo.netTxBytes) / 1024.0;
-        ioCsv << timestamp << "," << diskRead << "," << diskWrite << ","
-              << netRx << "," << netTx << "\n";
-        ioCsv.flush();
-        db.insertIo(timestamp, diskRead, diskWrite, netRx, netTx);
-        prevIo = currIo;
-        db.commit();
+        s.diskRead  = (currIo.diskReadSectors  - prevIo.diskReadSectors)  * 512.0 / 1048576.0;
+        s.diskWrite = (currIo.diskWriteSectors - prevIo.diskWriteSectors) * 512.0 / 1048576.0;
+        s.netRx = (currIo.netRxBytes - prevIo.netRxBytes) / 1024.0;
+        s.netTx = (currIo.netTxBytes - prevIo.netTxBytes) / 1024.0;
+
+        std::cout << s.timestamp << " | CPU: " << s.cpu << "% | RAM: "
+                  << s.ram << "% | Load: " << s.load << "\n";
+
+        {
+            std::lock_guard<std::mutex> lock(g_mutex);
+            g_queue.push(std::move(s));
+        }
+        g_cv.notify_one();
+
         prevCpu = currCpu;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    } 
-    
-    std::cout << "\nStopping collector, closing files.\n";
+        prevProcs = std::move(currProcs);
+        prevIo = currIo;
+
+        next += std::chrono::seconds(1);
+        std::this_thread::sleep_until(next);
+    }
+
+    std::cout << "\nStopping collector, flushing queue and closing files.\n";
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        g_done = true;
+    }
+    g_cv.notify_one();
+    writer.join();
+
     csv.close();
     procCsv.close();
     ioCsv.close();
