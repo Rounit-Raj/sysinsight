@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <ctime>
+#include <csignal>
 #include <filesystem>
 #include <vector>
 #include <unordered_map>
@@ -186,7 +187,16 @@ std::string currentTimestamp() {
     return std::string(buf);
 }
 
+volatile std::sig_atomic_t g_running = 1;
+
+void handleSignal(int) {
+    g_running = 0;
+}
+
 int main() {
+    std::signal(SIGINT, handleSignal);
+    std::signal(SIGTERM, handleSignal);
+
     const std::string csvPath = "data/readings.csv";
     
     //Open in append mode if you don't have some big cojnomes
@@ -224,7 +234,7 @@ int main() {
     IoSample prevIo = readIo();
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    while (true) {
+    while (g_running) {
         CpuTimes currCpu = readCpuTimes();
         double cpuPercent = computeCpuUsagePercent(prevCpu, currCpu);
         double ramPercent = readMemUsagePercent();
@@ -267,5 +277,9 @@ int main() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     } 
     
+    std::cout << "\nStopping collector, closing files.\n";
+    csv.close();
+    procCsv.close();
+    ioCsv.close();
     return 0;
 }
