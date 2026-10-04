@@ -1,0 +1,41 @@
+Rows in labelled window: 332
+label
+normal           241
+memory_stress     31
+cpu_stress        30
+disk_stress       30
+
+CPU+RAM+load       contamination=0.1   precision=0.91 recall=0.34 f1=0.50
+    caught cpu_stress      60.0% of seconds
+    caught memory_stress   41.9% of seconds
+    caught disk_stress      0.0% of seconds
+with disk+network  contamination=0.1   precision=0.65 recall=0.24 f1=0.35
+    caught cpu_stress      40.0% of seconds
+    caught memory_stress   19.4% of seconds
+    caught disk_stress     13.3% of seconds
+smoothed base      contamination=0.1   precision=0.71 recall=0.26 f1=0.38
+    caught cpu_stress      50.0% of seconds
+    caught memory_stress   29.0% of seconds
+    caught disk_stress      0.0% of seconds
+smoothed all       contamination=0.1   precision=0.74 recall=0.27 f1=0.40
+    caught cpu_stress      33.3% of seconds
+    caught memory_stress   38.7% of seconds
+    caught disk_stress     10.0% of seconds
+
+CPU+RAM+load       contamination=0.2   precision=0.90 recall=0.66 f1=0.76
+    caught cpu_stress      96.7% of seconds
+    caught memory_stress   96.8% of seconds
+    caught disk_stress      3.3% of seconds
+with disk+network  contamination=0.2   precision=0.75 recall=0.55 f1=0.63
+    caught cpu_stress      73.3% of seconds
+    caught memory_stress   54.8% of seconds
+    caught disk_stress     36.7% of seconds
+smoothed base      contamination=0.2   precision=0.82 recall=0.60 f1=0.70
+    caught cpu_stress      96.7% of seconds
+    caught memory_stress   83.9% of seconds
+    caught disk_stress      0.0% of seconds
+smoothed all       contamination=0.2   precision=0.61 recall=0.45 f1=0.52
+    caught cpu_stress      50.0% of seconds
+    caught memory_stress   74.2% of seconds
+    caught disk_stress     10.0% of seconds
+

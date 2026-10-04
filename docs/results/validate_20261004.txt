@@ -1,0 +1,12 @@
+Train A rows: 375 | Train B rows: 587
+Run 1 test rows: 282 | Run 2 test rows: 281
+
+Run 2, train A: IF alone           P=0.87 R=0.67 F1=0.75 false_alarms= 3.3%  caught: cpu=100%  memory=0%  disk=100%
+Run 2, train A: hybrid T=6         P=0.90 R=0.96 F1=0.93 false_alarms= 3.3%  caught: cpu=100%  memory=87%  disk=100%
+Run 2, train A: hybrid T=8         P=0.90 R=0.96 F1=0.93 false_alarms= 3.3%  caught: cpu=100%  memory=87%  disk=100%
+
+Run 2, train B: IF alone           P=1.00 R=0.35 F1=0.52 false_alarms= 0.0%  caught: cpu=9%  memory=0%  disk=96%
+Run 2, train B: hybrid T=6         P=1.00 R=0.64 F1=0.78 false_alarms= 0.0%  caught: cpu=9%  memory=87%  disk=96%
+Run 2, train B: hybrid T=8         P=1.00 R=0.62 F1=0.77 false_alarms= 0.0%  caught: cpu=9%  memory=83%  disk=96%
+
+Run 1 (reference): hybrid T=6      P=0.94 R=0.96 F1=0.95 false_alarms= 1.9%  caught: cpu=100%  memory=88%  disk=100%

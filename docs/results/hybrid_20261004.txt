@@ -1,0 +1,15 @@
+Training rows: 375 | Test rows after trimming: 282 (normal: 212)
+
+Each rule on its own (T=8):
+cpu_percent                P=1.00 R=0.33 F1=0.49 false_alarms= 0.0%  caught: cpu=100%  memory=0%  disk=0%
+ram_percent                P=1.00 R=0.29 F1=0.44 false_alarms= 0.0%  caught: cpu=0%  memory=83%  disk=0%
+load_avg_1min              P=0.21 R=0.11 F1=0.15 false_alarms=14.2%  caught: cpu=35%  memory=0%  disk=0%
+disk_read_mb_s_log         P=0.00 R=0.00 F1=0.00 false_alarms= 0.0%  caught: cpu=0%  memory=0%  disk=0%
+disk_write_mb_s_log        P=1.00 R=0.33 F1=0.49 false_alarms= 0.0%  caught: cpu=0%  memory=0%  disk=100%
+
+Isolation Forest plus a narrow rule:
+IF alone                   P=0.92 R=0.66 F1=0.77 false_alarms= 1.9%  caught: cpu=100%  memory=0%  disk=100%
+IF + RAM rule (T=6)        P=0.94 R=0.96 F1=0.95 false_alarms= 1.9%  caught: cpu=100%  memory=88%  disk=100%
+IF + RAM,CPU rule (T=6)    P=0.94 R=0.96 F1=0.95 false_alarms= 1.9%  caught: cpu=100%  memory=88%  disk=100%
+IF + RAM rule (T=8)        P=0.94 R=0.94 F1=0.94 false_alarms= 1.9%  caught: cpu=100%  memory=83%  disk=100%
+IF + RAM,CPU rule (T=8)    P=0.94 R=0.94 F1=0.94 false_alarms= 1.9%  caught: cpu=100%  memory=83%  disk=100%
