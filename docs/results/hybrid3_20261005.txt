@@ -1,0 +1,21 @@
+run 2, train A: IF + RAM rule T=6  P=0.90 R=0.96 F1=0.93 false_alarms= 3.3%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train A: IF + 3 rules T=6   P=0.90 R=0.96 F1=0.93 false_alarms= 3.3%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train A: 3 rules only T=6   P=1.00 R=0.96 F1=0.98 false_alarms= 0.0%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train A: IF + RAM rule T=8  P=0.90 R=0.96 F1=0.93 false_alarms= 3.3%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train A: IF + 3 rules T=8   P=0.90 R=0.96 F1=0.93 false_alarms= 3.3%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train A: 3 rules only T=8   P=1.00 R=0.96 F1=0.98 false_alarms= 0.0%  caught: cpu=100%  memory=87%  disk=100%
+
+run 2, train B: IF + RAM rule T=6  P=1.00 R=0.64 F1=0.78 false_alarms= 0.0%  caught: cpu=9%  memory=87%  disk=96%
+run 2, train B: IF + 3 rules T=6   P=1.00 R=0.96 F1=0.98 false_alarms= 0.0%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train B: 3 rules only T=6   P=1.00 R=0.96 F1=0.98 false_alarms= 0.0%  caught: cpu=100%  memory=87%  disk=100%
+run 2, train B: IF + RAM rule T=8  P=1.00 R=0.62 F1=0.77 false_alarms= 0.0%  caught: cpu=9%  memory=83%  disk=96%
+run 2, train B: IF + 3 rules T=8   P=1.00 R=0.94 F1=0.97 false_alarms= 0.0%  caught: cpu=100%  memory=83%  disk=100%
+run 2, train B: 3 rules only T=8   P=1.00 R=0.94 F1=0.97 false_alarms= 0.0%  caught: cpu=100%  memory=83%  disk=100%
+
+run 1, train A: IF + RAM rule T=6  P=0.94 R=0.96 F1=0.95 false_alarms= 1.9%  caught: cpu=100%  memory=88%  disk=100%
+run 1, train A: IF + 3 rules T=6   P=0.94 R=0.96 F1=0.95 false_alarms= 1.9%  caught: cpu=100%  memory=88%  disk=100%
+run 1, train A: 3 rules only T=6   P=1.00 R=0.96 F1=0.98 false_alarms= 0.0%  caught: cpu=100%  memory=88%  disk=100%
+run 1, train A: IF + RAM rule T=8  P=0.94 R=0.94 F1=0.94 false_alarms= 1.9%  caught: cpu=100%  memory=83%  disk=100%
+run 1, train A: IF + 3 rules T=8   P=0.94 R=0.94 F1=0.94 false_alarms= 1.9%  caught: cpu=100%  memory=83%  disk=100%
+run 1, train A: 3 rules only T=8   P=1.00 R=0.94 F1=0.97 false_alarms= 0.0%  caught: cpu=100%  memory=83%  disk=100%
+

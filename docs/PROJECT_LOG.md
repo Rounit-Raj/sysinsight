@@ -56,3 +56,4 @@ Experiments (output files in docs/results/):
 - CPU prediction models (Random Forest / Decision Tree) and model comparison table.
 - Build the detector into the live pipeline; dashboard upgrade and theme.
 - Unit tests, long soak test, final report and demo.
+- 2026-10-05: train B hurt CPU detection although run 1 normal rows were clean (no contamination); Isolation Forest scores for CPU stress flipped from anomalous to normal depending on the training mix. Rules alone (CPU, RAM, disk write; median/MAD thresholds) reached F1 about 0.98 with 0% false alarms on both runs and both training sets (docs/results/hybrid3_20261005.txt). Caveat: the test only contains single-metric overloads, which favours rules; need subtler anomalies to see what Isolation Forest adds.
