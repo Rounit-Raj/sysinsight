@@ -26,4 +26,4 @@ venv/
 !data/
 data/*
 !data/sample.csv
-!data/labels.csv
+!data/labels*.csv

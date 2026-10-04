@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs labelled stress scenarios. The collector must already be running.
-OUT="data/labels.csv"
+OUT="${1:-data/labels.csv}"
 mkdir -p data "$HOME/stress_tmp"
 [ -f "$OUT" ] || echo "start,end,label" > "$OUT"
 
