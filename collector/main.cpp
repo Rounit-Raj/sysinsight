@@ -10,6 +10,14 @@
 #include <condition_variable>
 #include <queue>
 #include "db.hpp"
+#include <set>
+
+// Prints a warning the first time a given file cannot be read
+void warnOnce(const std::string& what) {
+    static std::set<std::string> seen;
+    if (seen.insert(what).second)
+        std::cerr << "Warning: cannot read " << what << ", using fallback values.\n";
+}
 #include <filesystem>
 #include <vector>
 #include <unordered_map>
@@ -33,6 +41,7 @@ struct CpuTimes {
 
 CpuTimes readCpuTimes() {
     std::ifstream file("/proc/stat");
+    if (!file) { warnOnce("/proc/stat"); return CpuTimes{}; }
     std::string line;
     std::getline(file, line); //first line will start with "cpu"
 
@@ -55,6 +64,7 @@ double computeCpuUsagePercent(const CpuTimes& prev, const CpuTimes& curr) {
 //Reads proc and returns RAM usage as a percentage
 double readMemUsagePercent() {
     std::ifstream file("/proc/meminfo");
+    if (!file) { warnOnce("/proc/meminfo"); return 0.0; }
     std::string key;
     long long value;
     std::string unit;
@@ -78,6 +88,7 @@ double readMemUsagePercent() {
 //Reads /proc/loadavg and returns the 1 min load average
 double readLoadAverage1Min() {
     std::ifstream file("/proc/loadavg");
+    if (!file) { warnOnce("/proc/loadavg"); return 0.0; }
     double load1;
     file >> load1;
     return load1;
@@ -100,7 +111,8 @@ std::unordered_map<int, ProcSample> readAllProcesses() {
      std::unordered_map<int, ProcSample> result;
      long pageKb = sysconf(_SC_PAGESIZE) / 1024;
 
-     for (const auto& entry : std::filesystem::directory_iterator("/proc")) {
+    std::error_code ec;
+     for (const auto& entry : std::filesystem::directory_iterator("/proc", ec)) {
          std::string dirName = entry.path().filename().string();
          if (dirName.empty() || !std::all_of(dirName.begin(), dirName.end(), ::isdigit)) continue;
 
@@ -145,6 +157,7 @@ IoSample readIo() {
     IoSample s;
      
     std::ifstream disk("/proc/diskstats");
+    if (!disk) warnOnce("/proc/diskstats");
     std::string line;
     while (std::getline(disk, line)) {
         std::istringstream iss(line);
@@ -163,6 +176,7 @@ IoSample readIo() {
 }
 
 std::ifstream net("/proc/net/dev");
+    if (!net) warnOnce("/proc/net/dev");
 std::getline(net, line);
     std::getline(net, line);
     while (std::getline(net, line)) {
@@ -288,6 +302,11 @@ int main() {
         s.timestamp = currentTimestamp();
 
         CpuTimes currCpu = readCpuTimes();
+        if (currCpu.totalTime() == 0) {
+            next += std::chrono::seconds(1);
+            std::this_thread::sleep_until(next);
+            continue;
+        }
         s.cpu = computeCpuUsagePercent(prevCpu, currCpu);
         s.ram = readMemUsagePercent();
         s.load = readLoadAverage1Min();
@@ -311,6 +330,10 @@ int main() {
         s.diskWrite = (currIo.diskWriteSectors - prevIo.diskWriteSectors) * 512.0 / 1048576.0;
         s.netRx = (currIo.netRxBytes - prevIo.netRxBytes) / 1024.0;
         s.netTx = (currIo.netTxBytes - prevIo.netTxBytes) / 1024.0;
+        s.diskRead = std::max(0.0, s.diskRead);
+        s.diskWrite = std::max(0.0, s.diskWrite);
+        s.netRx = std::max(0.0, s.netRx);
+        s.netTx = std::max(0.0, s.netTx);
 
         std::cout << s.timestamp << " | CPU: " << s.cpu << "% | RAM: "
                   << s.ram << "% | Load: " << s.load << "\n";
