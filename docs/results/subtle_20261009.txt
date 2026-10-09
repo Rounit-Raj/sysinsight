@@ -1,0 +1,16 @@
+Test rows: 411
+label
+normal          341
+subtle_combo     24
+subtle_cpu       23
+net_burst        23
+
+3 rules only (T=6)       P=0.00 R=0.00 F1=0.00 false_alarms= 0.0%  caught: cpu=0%  combo=0%  net=0%
+3 rules only (T=3)       P=0.94 R=0.67 F1=0.78 false_alarms= 0.9%  caught: cpu=100%  combo=100%  net=0%
+IF alone (cont=0.01)     P=0.94 R=0.69 F1=0.79 false_alarms= 0.9%  caught: cpu=9%  combo=96%  net=100%
+IF + rules T=6 (c=0.01)  P=0.94 R=0.69 F1=0.79 false_alarms= 0.9%  caught: cpu=9%  combo=96%  net=100%
+IF alone (cont=0.05)     P=0.77 R=0.69 F1=0.73 false_alarms= 4.1%  caught: cpu=9%  combo=96%  net=100%
+IF + rules T=6 (c=0.05)  P=0.77 R=0.69 F1=0.73 false_alarms= 4.1%  caught: cpu=9%  combo=96%  net=100%
+
+Normal-phase RAM %, run 1 vs run 3 (baseline drift check):
+  train A median: 16.1 | run 1 normal mean: 8.5 | run 3 normal mean: 12.5

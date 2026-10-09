@@ -1,0 +1,21 @@
+run 1
+  IF alone               F1=0.77 P=0.92 R=0.66 false_alarms= 1.9%  cpu=100%  disk=100%  memory=0%
+  3 rules T=3            F1=0.99 P=1.00 R=0.99 false_alarms= 0.0%  cpu=100%  disk=100%  memory=96%
+  IF + 3 rules           F1=0.97 P=0.95 R=0.99 false_alarms= 1.9%  cpu=100%  disk=100%  memory=96%
+  4 rules (with net) T=3 F1=0.99 P=1.00 R=0.99 false_alarms= 0.0%  cpu=100%  disk=100%  memory=96%
+  IF + 4 rules           F1=0.97 P=0.95 R=0.99 false_alarms= 1.9%  cpu=100%  disk=100%  memory=96%
+
+run 2
+  IF alone               F1=0.75 P=0.87 R=0.67 false_alarms= 3.3%  cpu=100%  disk=100%  memory=0%
+  3 rules T=3            F1=0.99 P=1.00 R=0.97 false_alarms= 0.0%  cpu=100%  disk=100%  memory=91%
+  IF + 3 rules           F1=0.94 P=0.91 R=0.97 false_alarms= 3.3%  cpu=100%  disk=100%  memory=91%
+  4 rules (with net) T=3 F1=0.99 P=1.00 R=0.97 false_alarms= 0.0%  cpu=100%  disk=100%  memory=91%
+  IF + 4 rules           F1=0.94 P=0.91 R=0.97 false_alarms= 3.3%  cpu=100%  disk=100%  memory=91%
+
+run 3
+  IF alone               F1=0.79 P=0.94 R=0.69 false_alarms= 0.9%  net_burst=100%  s_combo=96%  s_cpu=9%
+  3 rules T=3            F1=0.78 P=0.94 R=0.67 false_alarms= 0.9%  net_burst=0%  s_combo=100%  s_cpu=100%
+  IF + 3 rules           F1=0.97 P=0.93 R=1.00 false_alarms= 1.5%  net_burst=100%  s_combo=100%  s_cpu=100%
+  4 rules (with net) T=3 F1=0.98 P=0.96 R=1.00 false_alarms= 0.9%  net_burst=100%  s_combo=100%  s_cpu=100%
+  IF + 4 rules           F1=0.97 P=0.93 R=1.00 false_alarms= 1.5%  net_burst=100%  s_combo=100%  s_cpu=100%
+
