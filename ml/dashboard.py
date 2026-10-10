@@ -1,70 +1,108 @@
+import sqlite3
 import time
+from pathlib import Path
+
 import pandas as pd
-from sklearn.ensemble import IsolationForest
-from rich.console import Console
-from rich.table import Table
+from rich.console import Console, Group
 from rich.live import Live
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+
+ROOT = Path(__file__).resolve().parent.parent
+CSV_PATH = ROOT / "data" / "readings.csv"
+DB_PATH = ROOT / "data" / "sysinsight.db"
+
+REQUIRED_COLUMNS = ["timestamp", "cpu_percent", "ram_percent", "load_avg_1min"]
+ALERT_ROWS = 8
 
 console = Console()
 
-REQUIRED_COLUMNS = ["timestamp", "cpu_percent", "ram_percent", "load_avg_1min"]
 
-def get_latest_data():
+def read_stats():
     try:
-        df = pd.read_csv("../data/readings.csv")
+        df = pd.read_csv(CSV_PATH)
     except (FileNotFoundError, pd.errors.EmptyDataError):
         return None, "Waiting for data... (collector not running yet?)"
 
     if df.empty:
-        return None, "CSV is empty — waiting for readings..."
+        return None, "CSV is empty, waiting for readings..."
 
-    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing:
         return None, f"Missing expected columns: {missing}"
 
-    if len(df) < 10:
-        return None, f"Only {len(df)} readings so far — need at least 10 for anomaly detection"
+    return df.tail(10), None
 
-    features = df[["cpu_percent", "ram_percent", "load_avg_1min"]]
-    model = IsolationForest(contamination=0.05, random_state=42)
-    df["anomaly"] = model.fit_predict(features)
-    return df, None
 
-def build_table():
-    df, error = get_latest_data()
+def read_alerts():
+    try:
+        con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+        total = con.execute("SELECT COUNT(*) FROM alerts").fetchone()[0]
+        rows = con.execute(
+            "SELECT timestamp, severity, message FROM alerts ORDER BY id DESC LIMIT ?",
+            (ALERT_ROWS,),
+        ).fetchall()
+        con.close()
+        return total, rows, None
+    except sqlite3.Error as e:
+        return 0, [], f"Alert store unavailable: {e}"
 
+
+def build_stats_panel():
+    recent, error = read_stats()
     if error:
-        table = Table(title="SysInsight — Live Monitor")
-        table.add_column("Status")
-        table.add_row(f"[yellow]{error}[/yellow]")
-        return table
+        body = Text(error, style="yellow")
+    else:
+        table = Table(header_style="bold red", border_style="red", expand=True)
+        table.add_column("Timestamp", style="bright_black")
+        table.add_column("CPU %", style="white", justify="right")
+        table.add_column("RAM %", style="white", justify="right")
+        table.add_column("Load Avg", style="white", justify="right")
+        for _, row in recent.iterrows():
+            table.add_row(
+                str(row["timestamp"]),
+                f"{row['cpu_percent']:.2f}",
+                f"{row['ram_percent']:.2f}",
+                f"{row['load_avg_1min']:.2f}",
+            )
+        body = table
+    return Panel(body, title="[bold red]SYSINSIGHT // LIVE MONITOR[/bold red]",
+                 border_style="red")
 
-    recent = df.tail(10)
-    total_anomalies = (df["anomaly"] == -1).sum()
 
-    table = Table(
-        title=f"SysInsight — Live Monitor  |  Total anomalies so far: [red]{total_anomalies}[/red]",
-        style="bold cyan"
+def build_alerts_panel():
+    total, rows, error = read_alerts()
+    if error:
+        body = Text(error, style="yellow")
+    elif not rows:
+        body = Text("No alerts recorded.", style="bright_black")
+    else:
+        table = Table(header_style="bold red", border_style="red", expand=True)
+        table.add_column("Timestamp", style="bright_black", no_wrap=True)
+        table.add_column("Severity", no_wrap=True)
+        table.add_column("Message", style="white")
+        for ts, sev, msg in rows:
+            sev_text = (sev or "?").upper()
+            sev_style = "bold yellow" if sev_text == "LOW" else "bold red"
+            table.add_row(str(ts), Text(sev_text, style=sev_style), Text(str(msg)))
+        body = table
+    return Panel(
+        body,
+        title=f"[bold red]SHADOW ACTIVITY LOG[/bold red]  |  total alerts: [red]{total}[/red]",
+        border_style="red",
     )
 
-    table.add_column("Timestamp", style="bright_black")
-    table.add_column("CPU %", style="blue")
-    table.add_column("RAM %", style="cyan")
-    table.add_column("Load Avg", style="yellow")
-    table.add_column("Status", style="green")
 
-    for _, row in recent.iterrows():
-        status = "[red]ANOMALY[/red]" if row["anomaly"] == -1 else "[green]OK[/green]"
-        table.add_row(
-            str(row["timestamp"]),
-            f"{row['cpu_percent']:.2f}",
-            f"{row['ram_percent']:.2f}",
-            f"{row['load_avg_1min']:.2f}",
-            status
-        )
-    return table
+def build_view():
+    return Group(build_stats_panel(), build_alerts_panel())
 
-with Live(build_table(), refresh_per_second=1, console=console) as live:
-    while True:
-        time.sleep(2)
-        live.update(build_table())
+
+if __name__ == "__main__":
+    try:
+        with Live(build_view(), refresh_per_second=1, console=console) as live:
+            while True:
+                time.sleep(2)
+                live.update(build_view())
+    except KeyboardInterrupt:
+        pass
