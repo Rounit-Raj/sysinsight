@@ -58,3 +58,9 @@ Experiments (output files in docs/results/):
 - Unit tests, long soak test, final report and demo.
 - 2026-10-05: train B hurt CPU detection although run 1 normal rows were clean (no contamination); Isolation Forest scores for CPU stress flipped from anomalous to normal depending on the training mix. Rules alone (CPU, RAM, disk write; median/MAD thresholds) reached F1 about 0.98 with 0% false alarms on both runs and both training sets (docs/results/hybrid3_20261005.txt). Caveat: the test only contains single-metric overloads, which favours rules; need subtler anomalies to see what Isolation Forest adds.
 - 2026-10-09: run 3 (subtle CPU, combo, network burst; scripts/run_subtle_test.sh, run_net_test.sh). Four median/MAD rules (CPU, RAM, disk write, network rx; T=3) reached F1 about 0.98-0.99 on runs 1-3 with 0-0.9% false alarms; Isolation Forest alone F1 about 0.75-0.79; IF added only false alarms (1.5-3.3%). Caveat: T=3 and the network rule were chosen after seeing run 3; all tested anomalies are single-metric overloads; calm phases were quieter than normal use (docs/results/final_compare_20261009.txt). Isolation Forest kept only as a secondary signal.
+
+## 2026-10-11: Live detector
+- Added ml/live_detector.py: four rules (CPU, RAM, disk write, network) against a rolling median+MAD baseline of calm data from data/sysinsight.db.
+- One alert per event; a constant level for 5 minutes becomes the new baseline (handles RAM drift 8.5% to 12.5%).
+- Dry run on old data: one alert per stress event. Live test with stress-ng: one CPU spike alert written to the alerts table.
+- Next: Isolation Forest as a lower-severity "unusual pattern" warning.
