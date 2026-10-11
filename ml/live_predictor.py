@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "sysinsight.db"
 MODEL = ROOT / "ml" / "models" / "cpu_model.joblib"
 HORIZON = 300
+BLEND = 0.25         # weight on the model; 0.75 goes to 'CPU stays as now'
 WINDOW = 150          # rows read per cycle (needs >= 61 contiguous)
 INTERVAL = 10         # seconds between predictions
 TS_FMT = "%Y-%m-%d %H:%M:%S"
@@ -90,12 +91,14 @@ def step(con, model, features, name):
         print("not enough unbroken recent data yet (need 61+ seconds)")
         return
     made_at = feats["timestamp"].iloc[0]
-    pred = float(np.clip(model.predict(feats[features])[0], 0, 100))
+    raw = float(model.predict(feats[features])[0])
+    now = float(feats['cpu_percent'].iloc[0])
+    pred = float(np.clip(BLEND * raw + (1 - BLEND) * now, 0, 100))
     made_str = made_at.strftime(TS_FMT)
     target_str = (made_at + timedelta(seconds=HORIZON)).strftime(TS_FMT)
     if not con.execute("SELECT 1 FROM predictions WHERE made_at=?", (made_str,)).fetchone():
         con.execute("INSERT INTO predictions (made_at, target_time, predicted_cpu, model) "
-                    "VALUES (?,?,?,?)", (made_str, target_str, round(pred, 2), name))
+                    "VALUES (?,?,?,?)", (made_str, target_str, round(pred, 2), f"blend{int(BLEND*100)}_{name}"))
         con.commit()
     filled = backfill(con, made_str)
     print(f"{made_str}  now {feats['cpu_percent'].iloc[0]:.1f}%  ->  "
