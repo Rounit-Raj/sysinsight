@@ -28,3 +28,4 @@ data/*
 !data/sample.csv
 !data/labels*.csv
 .venv/
+data/backups/
