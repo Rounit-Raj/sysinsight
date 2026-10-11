@@ -64,3 +64,10 @@ Experiments (output files in docs/results/):
 - One alert per event; a constant level for 5 minutes becomes the new baseline (handles RAM drift 8.5% to 12.5%).
 - Dry run on old data: one alert per stress event. Live test with stress-ng: one CPU spike alert written to the alerts table.
 - Next: Isolation Forest as a lower-severity "unusual pattern" warning.
+
+## 2026-10-11: CPU prediction dataset (ml/cpu_dataset.py)
+- Target: CPU % 5 minutes ahead. Features are gap-safe, so rows spanning a recording gap are not mixed.
+- Split: chronological (train on earlier data, test on later data), to avoid leaking the future into training.
+- Size: 13786 raw samples -> 9127 train rows / 2357 test rows after building.
+- Baselines to beat (test MAE): always predict train mean = 9.461; "CPU stays as now" = 5.148.
+- Next: train Random Forest / Decision Tree, build the comparison table, save the best model with joblib.
