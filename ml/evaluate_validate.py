@@ -39,7 +39,7 @@ def window(labels):
     t["is_anomaly"] = (t["label"] != "normal").astype(int)
     return t
 
-lab1 = load_labels("../data/labels.csv")
+lab1 = load_labels("../data/labels_run1.csv")
 lab2 = load_labels("../data/labels_run2.csv")
 run1, run2 = window(lab1), window(lab2)
 

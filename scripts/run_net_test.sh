@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Network-burst scenario. The collector must already be running.
-OUT="data/labels_run3_net.csv"
+OUT="data/labels_net_run.csv"
 URLS=(
   "http://ipv4.download.thinkbroadband.com/100MB.zip"
   "https://ash-speed.hetzner.com/100MB.bin"

@@ -8,7 +8,7 @@ IO = ["disk_read_mb_s", "disk_write_mb_s", "net_rx_kb_s", "net_tx_kb_s"]
 
 readings = pd.read_csv("../data/readings.csv").drop_duplicates("timestamp")
 io = pd.read_csv("../data/io.csv").drop_duplicates("timestamp")
-labels = pd.read_csv("../data/labels.csv")
+labels = pd.read_csv("../data/labels_run1.csv")
 readings["timestamp"] = pd.to_datetime(readings["timestamp"])
 io["timestamp"] = pd.to_datetime(io["timestamp"])
 labels["start"] = pd.to_datetime(labels["start"])
