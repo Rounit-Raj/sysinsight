@@ -1,0 +1,11 @@
+* = detected (3+ consecutive flagged seconds). Numbers = % of the event's seconds flagged.
+rulesN = four rules (CPU, RAM, disk write, network) with threshold T=N; IF = Isolation Forest alone; hybN = rules OR IF.
+
+=== run3 (labels_run3_std.csv) window 2026-10-11 22:04:54 -> 2026-10-11 22:11:24
+baseline rows: 32 | test rows before trimming: 391 (window is 390 s)
+not enough data in readings.csv/io.csv for this window, skipped
+
+=== rep1 (labels_run3_rep1_std.csv) window 2026-10-11 23:02:59 -> 2026-10-11 23:09:29
+baseline rows: 61 | test rows before trimming: 391 (window is 390 s)
+not enough data in readings.csv/io.csv for this window, skipped
+
