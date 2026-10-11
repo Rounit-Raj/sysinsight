@@ -71,3 +71,28 @@ Experiments (output files in docs/results/):
 - Size: 13786 raw samples -> 9127 train rows / 2357 test rows after building.
 - Baselines to beat (test MAE): always predict train mean = 9.461; "CPU stays as now" = 5.148.
 - Next: train Random Forest / Decision Tree, build the comparison table, save the best model with joblib.
+
+## 2026-10-11: CPU prediction models (Phase 2)
+
+**Setup:** The target is CPU % five minutes ahead. The dataset is 9127 train rows and 2357 test rows, split chronologically, with gap-safe lag and rolling features (`ml/cpu_dataset.py`). Models are trained by `ml/train_cpu_models.py`.
+
+**Results (test set, lower MAE is better):**
+
+| Model | MAE | RMSE | R2 |
+|---|---|---|---|
+| Ridge regression | 4.554 | 6.376 | -0.264 |
+| Gradient Boosting | 4.802 | 7.107 | -0.570 |
+| Baseline: CPU stays as now | 5.148 | 7.224 | -0.622 |
+| Random Forest | 5.635 | 8.339 | -1.161 |
+| Decision Tree | 6.208 | 8.856 | -1.438 |
+| Always train mean | 9.461 | 11.007 | -2.766 |
+
+**Findings:**
+- Ridge is the best model. Its MAE is about 11.5% lower than the "CPU stays as now" baseline, so the gain is modest but real.
+- Random Forest and Decision Tree are worse than the baseline. They overfit the training period and do not transfer to the test period.
+- All R2 values are negative, so no model beats predicting the test-set average in variance terms. A 5-minute-ahead target is noisy, and the data covers only about 3.8 hours on one machine.
+- On small data with a chronological split, the simple model generalised best.
+
+**Output:** The best model is saved to `ml/models/cpu_model.joblib`. The reload check confirmed identical predictions. The comparison table is in `docs/results/model_comparison.csv` and `.md`.
+
+**Next:** Collect more varied data and re-run the comparison, then build the real dashboard.
