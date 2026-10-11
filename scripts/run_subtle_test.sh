@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 cd "$(dirname "$0")/.."
-OUT=data/labels_run3.csv
+OUT="${1:-data/labels_run3.csv}"
 echo "start,end,type" > "$OUT"
 
 ts() { date '+%F %T'; }
