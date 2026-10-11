@@ -1,0 +1,39 @@
+* = detected (3+ consecutive flagged seconds). Numbers = % of the event's seconds flagged.
+rulesN = four rules (CPU, RAM, disk write, network) with threshold T=N; IF = Isolation Forest alone; hybN = rules OR IF.
+
+=== run3 (labels_run3_std.csv) window 2026-10-11 22:04:54 -> 2026-10-11 22:11:24
+baseline span: 2026-10-11 18:47:32 -> 2026-10-11 22:04:23
+baseline rows: 1800 | test rows before trimming: 391 (window is 390 s)
+test rows after trimming: 341 (normal: 159)
+
+event       kind       rules4     rules6     rules8         IF       hyb4       hyb6       hyb8
+light_cpu   cpu          15%*        6%         4%        17%*       17%*       17%*       17%*
+small_ram   ram          32%        28%        26%        25%        32%        28%        26% 
+disk_drip   disk         35%*       31%        30%        44%*       44%*       44%*       44%*
+cpu_bursts  cpu          23%*       23%*       23%*        9%        27%*       27%*       27%*
+false alarms           21.4%      17.0%      16.4%      24.5%      25.2%      24.5%      24.5% 
+
+floor scale 0.3. Event size vs calm baseline (event mean minus baseline median; noise = 1.4826*MAD):
+  light_cpu   cpu -7.05 (noise 1.96) | ram -6.81 (noise 0.25) | disk +0.10 (noise 0.00)
+  small_ram   cpu -1.00 (noise 1.96) | ram -3.91 (noise 0.25) | disk +0.10 (noise 0.00)
+  disk_drip   cpu -8.21 (noise 1.96) | ram -7.13 (noise 0.25) | disk +0.05 (noise 0.00)
+  cpu_bursts  cpu +4.87 (noise 1.96) | ram -7.07 (noise 0.25) | disk +0.05 (noise 0.00)
+
+=== rep1 (labels_run3_rep1_std.csv) window 2026-10-11 23:02:59 -> 2026-10-11 23:09:29
+baseline span: 2026-10-11 18:51:52 -> 2026-10-11 23:02:28
+baseline rows: 1800 | test rows before trimming: 391 (window is 390 s)
+test rows after trimming: 341 (normal: 159)
+
+event       kind       rules4     rules6     rules8         IF       hyb4       hyb6       hyb8
+light_cpu   cpu           4%         0%         0%         0%         4%         0%         0% 
+small_ram   ram           8%         0%         0%         0%         8%         0%         0% 
+disk_drip   disk          4%         2%         0%         0%         4%         2%         0% 
+cpu_bursts  cpu          18%*       14%*       14%*        0%        18%*       14%*       14%*
+false alarms            8.2%       4.4%       1.3%       0.0%       8.2%       4.4%       1.3% 
+
+floor scale 0.3. Event size vs calm baseline (event mean minus baseline median; noise = 1.4826*MAD):
+  light_cpu   cpu -7.67 (noise 1.92) | ram -16.18 (noise 0.25) | disk +0.05 (noise 0.00)
+  small_ram   cpu -1.26 (noise 1.92) | ram -13.24 (noise 0.25) | disk +0.04 (noise 0.00)
+  disk_drip   cpu -9.13 (noise 1.92) | ram -16.17 (noise 0.25) | disk +0.02 (noise 0.00)
+  cpu_bursts  cpu +3.99 (noise 1.92) | ram -16.17 (noise 0.25) | disk +0.00 (noise 0.00)
+

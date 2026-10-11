@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -10,7 +11,8 @@ IO = ["disk_read_mb_s", "disk_write_mb_s", "net_rx_kb_s", "net_tx_kb_s"]
 RUNS = {"run3": "labels_run3_std.csv", "rep1": "labels_run3_rep1_std.csv"}
 ALL_LABELS = ["labels_run1.csv", "labels_run2.csv", "labels_net_run.csv",
               "labels_run3_std.csv", "labels_run3_rep1_std.csv"]
-BASELINE_MIN = 45
+BASELINE_ROWS = 1800
+FLOOR_SCALE = float(sys.argv[1]) if len(sys.argv) > 1 else 1.0
 EDGE_S = 3
 CALM_MARGIN_S = 30
 FLOORS = {"cpu_percent": 5.0, "ram_percent": 2.0, "disk_write_mb_s_log": 0.5,
@@ -60,10 +62,11 @@ print("rulesN = four rules (CPU, RAM, disk write, network) with threshold T=N; I
 for run, fname in RUNS.items():
     lab = load_labels(fname)
     w0, w1 = lab["start"].min(), lab["end"].max()
-    base = df[calm_ok & (df["timestamp"] < w0) &
-              (df["timestamp"] >= w0 - pd.Timedelta(minutes=BASELINE_MIN))].copy()
+    base = df[calm_ok & (df["timestamp"] < w0)].tail(BASELINE_ROWS).copy()
     test = df[(df["timestamp"] >= w0) & (df["timestamp"] <= w1)].copy().reset_index(drop=True)
     print(f"=== {run} ({fname}) window {w0} -> {w1}")
+    if len(base):
+        print(f"baseline span: {base['timestamp'].min()} -> {base['timestamp'].max()}")
     print(f"baseline rows: {len(base)} | test rows before trimming: {len(test)} "
           f"(window is {int((w1 - w0).total_seconds())} s)")
     if len(base) < 300 or len(test) < 100:
@@ -89,7 +92,7 @@ for run, fname in RUNS.items():
         for col, floor in FLOORS.items():
             med = base[col].median()
             mad = 1.4826 * (base[col] - med).abs().median()
-            flag |= ((test[col] - med) / max(mad, floor) > T).values
+            flag |= ((test[col] - med) / max(mad, floor * FLOOR_SCALE) > T).values
         return flag
 
     forest = IsolationForest(n_estimators=200, contamination=0.01, random_state=42)
@@ -116,3 +119,15 @@ for run, fname in RUNS.items():
         print(f"{r['label']:<12}{r['kind']:<6}{cells}")
     cells = "".join(f"{pred[normal].mean() * 100:>9.1f}% " for pred in dets.values())
     print(f"{'false alarms':<18}{cells}\n")
+    print(f"floor scale {FLOOR_SCALE}. Event size vs calm baseline (event mean minus baseline median; noise = 1.4826*MAD):")
+    for idx, r in lab[lab["label"] != "normal"].iterrows():
+        m = (test["event"] == idx).values
+        if m.sum() == 0:
+            continue
+        out = []
+        for col in ["cpu_percent", "ram_percent", "disk_write_mb_s"]:
+            med = base[col].median()
+            mad = 1.4826 * (base[col] - med).abs().median()
+            out.append(f"{col.split('_')[0]} {test.loc[m, col].mean() - med:+.2f} (noise {mad:.2f})")
+        print(f"  {r['label']:<12}" + " | ".join(out))
+    print()

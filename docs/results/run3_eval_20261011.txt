@@ -2,10 +2,26 @@
 rulesN = four rules (CPU, RAM, disk write, network) with threshold T=N; IF = Isolation Forest alone; hybN = rules OR IF.
 
 === run3 (labels_run3_std.csv) window 2026-10-11 22:04:54 -> 2026-10-11 22:11:24
-baseline rows: 32 | test rows before trimming: 391 (window is 390 s)
-not enough data in readings.csv/io.csv for this window, skipped
+baseline span: 2026-10-11 18:47:32 -> 2026-10-11 22:04:23
+baseline rows: 1800 | test rows before trimming: 391 (window is 390 s)
+test rows after trimming: 341 (normal: 159)
+
+event       kind       rules4     rules6     rules8         IF       hyb4       hyb6       hyb8
+light_cpu   cpu           0%         0%         0%        17%*       17%*       17%*       17%*
+small_ram   ram          25%        25%        25%        25%        25%        25%        25% 
+disk_drip   disk         13%        13%        13%        44%*       44%*       44%*       44%*
+cpu_bursts  cpu          18%*       14%*       14%*        9%        27%*       23%*       23%*
+false alarms           10.1%      10.1%       8.8%      24.5%      24.5%      24.5%      24.5% 
 
 === rep1 (labels_run3_rep1_std.csv) window 2026-10-11 23:02:59 -> 2026-10-11 23:09:29
-baseline rows: 61 | test rows before trimming: 391 (window is 390 s)
-not enough data in readings.csv/io.csv for this window, skipped
+baseline span: 2026-10-11 18:51:52 -> 2026-10-11 23:02:28
+baseline rows: 1800 | test rows before trimming: 391 (window is 390 s)
+test rows after trimming: 341 (normal: 159)
+
+event       kind       rules4     rules6     rules8         IF       hyb4       hyb6       hyb8
+light_cpu   cpu           0%         0%         0%         0%         0%         0%         0% 
+small_ram   ram           0%         0%         0%         0%         0%         0%         0% 
+disk_drip   disk          0%         0%         0%         0%         0%         0%         0% 
+cpu_bursts  cpu          14%*       14%*       14%*        0%        14%*       14%*       14%*
+false alarms            0.0%       0.0%       0.0%       0.0%       0.0%       0.0%       0.0% 
 
