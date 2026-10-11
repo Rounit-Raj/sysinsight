@@ -1,8 +1,8 @@
-| model | MAE | RMSE | R2 | fit_seconds |
-|---|---|---|---|---|
-| Ridge regression | 4.554 | 6.376 | -0.264 | 0.009 |
-| Gradient Boosting | 4.802 | 7.107 | -0.57 | 2.339 |
-| Baseline: CPU stays as now | 5.148 | 7.224 | -0.622 | 0.0 |
-| Random Forest | 5.635 | 8.339 | -1.161 | 0.748 |
-| Decision Tree | 6.208 | 8.856 | -1.438 | 0.028 |
-| Always train mean | 9.461 | 11.007 | -2.766 | 0.011 |
+| model | MAE | RMSE | R2 | fit_seconds | infer_ms |
+|---|---|---|---|---|---|
+| Ridge regression | 4.554 | 6.376 | -0.264 | 0.004 | 0.553 |
+| Gradient Boosting | 4.802 | 7.107 | -0.57 | 2.329 | 0.511 |
+| Baseline: CPU stays as now | 5.148 | 7.224 | -0.622 | 0.0 | 0.0 |
+| Random Forest | 5.635 | 8.339 | -1.161 | 0.809 | 39.945 |
+| Decision Tree | 6.208 | 8.856 | -1.438 | 0.03 | 0.372 |
+| Always train mean | 9.461 | 11.007 | -2.766 | 0.011 | 0.01 |

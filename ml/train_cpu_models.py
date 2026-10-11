@@ -54,12 +54,21 @@ def main():
         model.fit(X_tr, y_tr)
         fit_s = time.time() - t0
         pred = model.predict(X_te)
+        row1 = X_te.iloc[[0]]
+        model.predict(row1)
+        times = []
+        for _ in range(200):
+            t1 = time.perf_counter()
+            model.predict(row1)
+            times.append(time.perf_counter() - t1)
+        infer_ms = float(np.median(times) * 1000)
         rows.append({
             "model": name,
             "MAE": mean_absolute_error(y_te, pred),
             "RMSE": float(np.sqrt(mean_squared_error(y_te, pred))),
             "R2": r2_score(y_te, pred),
             "fit_seconds": fit_s,
+            "infer_ms": infer_ms,
         })
         fitted[name] = model
 
@@ -72,6 +81,7 @@ def main():
             "RMSE": float(np.sqrt(mean_squared_error(y_te, pred))),
             "R2": r2_score(y_te, pred),
             "fit_seconds": 0.0,
+            "infer_ms": 0.0,
         })
 
     table = pd.DataFrame(rows).sort_values("MAE").reset_index(drop=True).round(3)
