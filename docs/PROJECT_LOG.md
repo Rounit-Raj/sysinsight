@@ -96,3 +96,9 @@ Experiments (output files in docs/results/):
 **Output:** The best model is saved to `ml/models/cpu_model.joblib`. The reload check confirmed identical predictions. The comparison table is in `docs/results/model_comparison.csv` and `.md`.
 
 **Next:** Collect more varied data and re-run the comparison, then build the real dashboard.
+
+## 2026-10-11: live forecast check
+- Ran ml/live_predictor.py alongside the collector and compared 616 predictions with actual CPU 5 minutes later.
+- Ridge alone (MAE 3.587) lost to "CPU stays as now" (3.025).
+- A 25% model / 75% stay blend scored best (2.886), so it is the chosen forecast.
+- Details: docs/results/live_forecast_check.md
