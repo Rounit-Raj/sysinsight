@@ -102,3 +102,20 @@ Experiments (output files in docs/results/):
 - Ridge alone (MAE 3.587) lost to "CPU stays as now" (3.025).
 - A 25% model / 75% stay blend scored best (2.886), so it is the chosen forecast.
 - Details: docs/results/live_forecast_check.md
+
+## 2026-10-12 - Replay event check: subtle events (run 3)
+
+Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and compared the alerts to the label files with `ml/check_replay_events.py` (output: `docs/results/replay_event_check_20261011.txt`).
+
+| Event | run3 | rep1 |
+|---|---|---|
+| light_cpu | missed (0 alerts) | missed (0 alerts) |
+| small_ram | missed (0 alerts) | missed (0 alerts) |
+| disk_drip | missed (0 alerts) | missed (0 alerts) |
+| cpu_bursts | detected (CPU spike) | detected (CPU spike) |
+
+- Matching-rule detection: 1/4 events in each recording.
+- Alerts inside labelled normal gaps: 4 in run3 (Network surge x3, CPU spike x1), 1 in rep1 (CPU spike).
+- In both recordings the gap CPU spike sits in the normal window right before the cpu_bursts window; not yet checked whether this is label-boundary slack or a real false alarm.
+- Conclusion: the current rule floors do not see subtle events (light CPU load, small RAM growth, slow disk writes). The earlier `evaluate_run3.py` numbers were baseline-mismatch artifacts, so this replay check is the reference result.
+- Next: test lower rule floors, measuring catches on the subtle events against false alarms on calm data, before changing the defaults.
