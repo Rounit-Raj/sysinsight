@@ -119,3 +119,12 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - In both recordings the gap CPU spike sits in the normal window right before the cpu_bursts window; not yet checked whether this is label-boundary slack or a real false alarm.
 - Conclusion: the current rule floors do not see subtle events (light CPU load, small RAM growth, slow disk writes). The earlier `evaluate_run3.py` numbers were baseline-mismatch artifacts, so this replay check is the reference result.
 - Next: test lower rule floors, measuring catches on the subtle events against false alarms on calm data, before changing the defaults.
+
+## 2026-10-12: Floor-scale sweep (live detector rules)
+
+- Added `--floor-scale` to ml/live_detector.py; replayed the full db at scales 1.0, 0.5, 0.3, 0.2, 0.1 (docs/results/replay_floor_*.txt) and checked alerts against the run 3 labels (ml/check_floor_sweep.py, docs/results/floor_sweep_event_check.txt).
+- cpu_bursts: detected 2/2 at every scale.
+- light_cpu and small_ram: 0/2 at every scale, even at 0.1. Floors are not the limiting factor.
+- disk_drip: detected 2/2 only at 0.1, with 12 alerts in the 360 s of normal gaps and about 600 disk alerts elsewhere. Not usable.
+- Scales 0.5 to 0.2 add alerts without detecting anything new.
+- Decision: keep the floors at 1.0 (CPU 15, RAM 3, disk 5, net 500). The rules catch large events; the subtle events are below what a median+MAD rule can separate from noise. Documented as a known limitation.
