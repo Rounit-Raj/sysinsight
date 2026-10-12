@@ -128,3 +128,13 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - disk_drip: detected 2/2 only at 0.1, with 12 alerts in the 360 s of normal gaps and about 600 disk alerts elsewhere. Not usable.
 - Scales 0.5 to 0.2 add alerts without detecting anything new.
 - Decision: keep the floors at 1.0 (CPU 15, RAM 3, disk 5, net 500). The rules catch large events; the subtle events are below what a median+MAD rule can separate from noise. Documented as a known limitation.
+
+## 2026-10-12: Event-level check of the live detector on run 3
+
+- Replayed the real pipeline (`python ml/live_detector.py --replay --dry-run`), saved to `docs/results/replay_alerts_20261011.txt`.
+- Compared the alerts with the run 3 labels using `ml/check_replay_events.py` (262 alerts parsed). Output is in `docs/results/replay_event_check_20261011.txt`.
+- Result: the rules caught only `cpu_bursts` (1 of 4 events), in both run3 and rep1.
+- `light_cpu`, `small_ram` and `disk_drip` were missed completely (0 alerts inside their windows).
+- False alarms in normal gaps: run3 had 4 (Network surge x3, CPU spike x1). rep1 had 1 (CPU spike just before the `cpu_bursts` window).
+- Earlier `evaluate_run3.py` numbers were distorted by a baseline mismatch (the 1800-row calm baseline did not match machine state during the run 3 windows), so the replay check is the number to trust.
+- Next: decide whether to lower the rule floors for the subtle events, with a false-alarm check on calm data.
