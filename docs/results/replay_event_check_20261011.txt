@@ -1,0 +1,23 @@
+parsed alerts: 262
+
+=== data/labels_run3_std.csv ===
+  light_cpu   kind=cpu  22:04:54-22:05:54  matching rule alerts: 0  all alerts: 0 {}
+  NORMAL  22:05:54-22:06:54  alerts: 1 {'Network surge': 1}
+  small_ram   kind=ram  22:06:54-22:07:54  matching rule alerts: 0  all alerts: 1 {'Network surge': 1}
+  NORMAL  22:07:54-22:08:54  alerts: 2 {'Network surge': 2}
+  disk_drip   kind=disk 22:08:54-22:09:55  matching rule alerts: 0  all alerts: 0 {}
+  NORMAL  22:09:55-22:10:55  alerts: 1 {'CPU spike': 1}
+  cpu_bursts  kind=cpu  22:10:55-22:11:24  matching rule alerts: 1  all alerts: 1 {'CPU spike': 1}
+  -> events detected by the matching rule: 1/4; by any alert: 2/4; alerts in normal gaps: 4
+
+=== data/labels_run3_rep1_std.csv ===
+  light_cpu   kind=cpu  23:02:59-23:04:00  matching rule alerts: 0  all alerts: 0 {}
+  NORMAL  23:04:00-23:05:00  alerts: 0 {}
+  small_ram   kind=ram  23:05:00-23:06:00  matching rule alerts: 0  all alerts: 0 {}
+  NORMAL  23:06:00-23:07:00  alerts: 0 {}
+  disk_drip   kind=disk 23:07:00-23:08:00  matching rule alerts: 0  all alerts: 0 {}
+  NORMAL  23:08:00-23:09:00  alerts: 1 {'CPU spike': 1}
+  cpu_bursts  kind=cpu  23:09:00-23:09:29  matching rule alerts: 1  all alerts: 1 {'CPU spike': 1}
+  -> events detected by the matching rule: 1/4; by any alert: 1/4; alerts in normal gaps: 1
+
+alerts outside every labelled window: 257 (unlabelled activity, not necessarily false alarms)
