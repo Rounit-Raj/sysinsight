@@ -1,0 +1,40 @@
+=== floor scale 1.0 (262 alerts total) ===
+  light_cpu    detected 0/2
+  small_ram    detected 0/2
+  disk_drip    detected 0/2
+  cpu_bursts   detected 2/2
+  normal gaps (360s): 5 alerts {'Network surge': 3, 'CPU spike': 2}
+  outside all labelled spans: 248 alerts {'Network surge': 160, 'RAM jump': 14, 'Disk write burst': 25, 'CPU spike': 39, 'Unusual pattern': 10}
+
+=== floor scale 0.5 (326 alerts total) ===
+  light_cpu    detected 0/2
+  small_ram    detected 0/2
+  disk_drip    detected 0/2
+  cpu_bursts   detected 2/2
+  normal gaps (360s): 4 alerts {'Network surge': 1, 'CPU spike': 2, 'Unusual pattern': 1}
+  outside all labelled spans: 306 alerts {'CPU spike': 58, 'Network surge': 173, 'RAM jump': 17, 'Disk write burst': 51, 'Unusual pattern': 7}
+
+=== floor scale 0.3 (358 alerts total) ===
+  light_cpu    detected 0/2
+  small_ram    detected 0/2
+  disk_drip    detected 0/2
+  cpu_bursts   detected 2/2
+  normal gaps (360s): 6 alerts {'Network surge': 1, 'CPU spike': 3, 'Unusual pattern': 2}
+  outside all labelled spans: 334 alerts {'CPU spike': 66, 'Network surge': 175, 'RAM jump': 20, 'Disk write burst': 67, 'Unusual pattern': 6}
+
+=== floor scale 0.2 (473 alerts total) ===
+  light_cpu    detected 0/2
+  small_ram    detected 0/2
+  disk_drip    detected 0/2
+  cpu_bursts   detected 2/2
+  normal gaps (360s): 10 alerts {'Disk write burst': 5, 'Network surge': 1, 'CPU spike': 3, 'Unusual pattern': 1}
+  outside all labelled spans: 438 alerts {'CPU spike': 62, 'Network surge': 182, 'Disk write burst': 166, 'RAM jump': 22, 'Unusual pattern': 6}
+
+=== floor scale 0.1 (1009 alerts total) ===
+  light_cpu    detected 0/2
+  small_ram    detected 0/2
+  disk_drip    detected 2/2
+  cpu_bursts   detected 2/2
+  normal gaps (360s): 16 alerts {'Disk write burst': 12, 'Network surge': 1, 'CPU spike': 3}
+  outside all labelled spans: 940 alerts {'Disk write burst': 611, 'CPU spike': 103, 'Network surge': 197, 'RAM jump': 23, 'Unusual pattern': 6}
+

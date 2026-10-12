@@ -198,8 +198,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", default="data/sysinsight.db")
     ap.add_argument("--replay", action="store_true", help="process all old rows once, then exit")
+    ap.add_argument("--floor-scale", type=float, default=1.0, help="multiply every rule floor (default 1.0)")
     ap.add_argument("--dry-run", action="store_true", help="print alerts, do not write them")
     args = ap.parse_args()
+    for cfg in RULES.values():
+        cfg["floor"] *= args.floor_scale
 
     con = sqlite3.connect(args.db, timeout=10)
     det = Detector(con, args.dry_run)
