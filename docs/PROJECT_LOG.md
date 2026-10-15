@@ -138,3 +138,9 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - False alarms in normal gaps: run3 had 4 (Network surge x3, CPU spike x1). rep1 had 1 (CPU spike just before the `cpu_bursts` window).
 - Earlier `evaluate_run3.py` numbers were distorted by a baseline mismatch (the 1800-row calm baseline did not match machine state during the run 3 windows), so the replay check is the number to trust.
 - Next: decide whether to lower the rule floors for the subtle events, with a false-alarm check on calm data.
+
+## 2026-10-15 — Lower rule floors on run 3 replay
+- Replay with --floor-scale 0.5 and 0.3 checked against run3 and rep1 labels (docs/results/replay_check_floor0.3_20261012.txt).
+- Matching rule caught only cpu_bursts (1/4) in both recordings at every floor tested; light_cpu, small_ram and disk_drip produced 0 matching alerts.
+- Lower floors added false alarms in normal gaps (rep1: 1 -> 4) without new detections.
+- Conclusion: the subtle events lie within normal variation; floor tuning does not fix this. Keep the original floors.
