@@ -153,3 +153,14 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - The earlier suspicion that the checker was mis-parsing the new alert files was ruled out: the regex matched all 358 lines in the floor 0.3 file.
 - Conclusion: lowering the rule floors does not catch the subtle events and costs many false alarms, so the floors stay at their original values. The subtle events are a documented limitation of the rule-based detector.
 - Results saved in docs/results/ (replay_event_check_*, replay_check_floor0.3_20261012.txt).
+
+## 2026-10-15 - Run 3 replay check (subtle anomalies)
+
+- The first run 3 evaluation (ml/evaluate_run3.py) used a 1800-calm-row baseline from about 4 hours before the events. It did not match the machine state during the run 3 windows (event RAM 7-16 points below the baseline median), so its numbers and false alarms are baseline-mismatch artifacts.
+- Switched to evaluating the real pipeline: `python ml/live_detector.py --replay --dry-run`, then an event-level check with ml/check_replay_events.py against both run 3 label files.
+- Original floors: rules caught only cpu_bursts (1/4 events) in both run3 and rep1. light_cpu, small_ram and disk_drip got 0 alerts in their windows. Normal gaps had 4 alerts in run3 and 1 in rep1.
+- Floor scale 0.3: 358 alerts parsed. The matching rule still caught only cpu_bursts (1/4 events) in both label files. Any alert hit 3/4 events. Normal-gap alerts: 2 (run3), 4 (rep1). 347 alerts fell outside labelled windows.
+- Floor scale 0.5: not re-checked yet since the checker change (the first check of this file looked wrong).
+- disk_drip is only about +0.05-0.10 MB/s above calm, so it is very small relative to the current rules.
+- Result so far: lowering the floors to 0.3 did not make the rules catch light_cpu, small_ram or disk_drip.
+- Results are in docs/results/ (replay_event_check_*, replay_check_floor0.3_20261012.txt).
