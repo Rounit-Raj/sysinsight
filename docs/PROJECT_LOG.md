@@ -144,3 +144,12 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - Matching rule caught only cpu_bursts (1/4) in both recordings at every floor tested; light_cpu, small_ram and disk_drip produced 0 matching alerts.
 - Lower floors added false alarms in normal gaps (rep1: 1 -> 4) without new detections.
 - Conclusion: the subtle events lie within normal variation; floor tuning does not fix this. Keep the original floors.
+
+## 2026-10-15 - Run 3 (subtle anomalies): live detector replay results
+
+- Replayed both run 3 recordings (labels_run3_std.csv and labels_run3_rep1_std.csv) through `ml/live_detector.py --replay --dry-run` at the original floors, `--floor-scale 0.5` and `--floor-scale 0.3`.
+- Event-level check (`ml/check_replay_events.py`): the matching rule caught only cpu_bursts (1 of 4 events) in both recordings. light_cpu, small_ram and disk_drip were never caught by their matching rule, even at floor scale 0.3.
+- Lowering the floors did not help detection and added noise. At floor 0.3 there were 358 alerts, 347 of them outside labelled windows. Normal-gap alerts were 2 (run3) and 4 (rep1).
+- The earlier suspicion that the checker was mis-parsing the new alert files was ruled out: the regex matched all 358 lines in the floor 0.3 file.
+- Conclusion: lowering the rule floors does not catch the subtle events and costs many false alarms, so the floors stay at their original values. The subtle events are a documented limitation of the rule-based detector.
+- Results saved in docs/results/ (replay_event_check_*, replay_check_floor0.3_20261012.txt).
