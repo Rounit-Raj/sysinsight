@@ -1,0 +1,47 @@
+(function () {
+  const section = document.createElement('section');
+  section.id = 'history-chart';
+  section.style.cssText =
+    'background:#3b4252;border-radius:8px;padding:16px;margin:16px auto;max-width:960px;';
+  section.innerHTML =
+    '<h2 style="margin:0 0 8px;color:#d8dee9;font:600 14px sans-serif">CPU &amp; RAM, last 10 minutes</h2>' +
+    '<canvas id="cpuRamChart" height="110"></canvas>';
+  document.body.appendChild(section);
+
+  const chart = new Chart(document.getElementById('cpuRamChart'), {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        { label: 'CPU %', data: [], borderColor: '#88c0d0', backgroundColor: '#88c0d0', borderWidth: 2, pointRadius: 0, tension: 0.25 },
+        { label: 'RAM %', data: [], borderColor: '#a3be8c', backgroundColor: '#a3be8c', borderWidth: 2, pointRadius: 0, tension: 0.25 }
+      ]
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      scales: {
+        x: { ticks: { color: '#d8dee9', maxTicksLimit: 8 }, grid: { color: '#4c566a' } },
+        y: { min: 0, max: 100, ticks: { color: '#d8dee9' }, grid: { color: '#4c566a' } }
+      },
+      plugins: { legend: { labels: { color: '#d8dee9' } } }
+    }
+  });
+
+  async function refresh() {
+    try {
+      const res = await fetch('/api/samples?minutes=10');
+      const body = await res.json();
+      const rows = Array.isArray(body) ? body : (body.samples || body.data || []);
+      chart.data.labels = rows.map(r => String(r.timestamp).slice(11, 19));
+      chart.data.datasets[0].data = rows.map(r => r.cpu_percent);
+      chart.data.datasets[1].data = rows.map(r => r.ram_percent);
+      chart.update('none');
+    } catch (e) {
+      console.error('chart refresh failed', e);
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 5000);
+})();
