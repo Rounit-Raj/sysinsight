@@ -123,5 +123,82 @@ updateForecast();
 setInterval(updateForecast, 5000);
 </script>
 
+<!-- alerts-panel:start -->
+<style>
+  #alerts-panel { background:#3b4252; color:#eceff4; border:1px solid #4c566a; border-radius:8px; margin:16px; padding:12px 16px; font-family:system-ui,sans-serif; }
+  #alerts-panel h2 { margin:0 0 10px; font-size:16px; color:#88c0d0; display:flex; justify-content:space-between; align-items:center; }
+  #alerts-count { background:#434c5e; color:#d8dee9; border-radius:10px; padding:2px 10px; font-size:12px; }
+  #alerts-list { max-height:320px; overflow-y:auto; }
+  .alert-row { display:flex; gap:10px; align-items:baseline; padding:6px 0; border-bottom:1px solid #434c5e; font-size:13px; }
+  .alert-row:last-child { border-bottom:none; }
+  .alert-time { color:#81a1c1; font-family:monospace; white-space:nowrap; }
+  .alert-sev { font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; color:#2e3440; white-space:nowrap; }
+  .sev-high { background:#bf616a; }
+  .sev-medium { background:#ebcb8b; }
+  .sev-low { background:#88c0d0; }
+  .sev-other { background:#d8dee9; }
+  .alert-kind { color:#d8dee9; font-weight:600; white-space:nowrap; }
+  .alert-msg { color:#e5e9f0; }
+  .alerts-empty { color:#81a1c1; padding:8px 0; font-size:13px; }
+</style>
+<section id="alerts-panel">
+  <h2>Alerts <span id="alerts-count">0</span></h2>
+  <div id="alerts-list"><div class="alerts-empty">Loading...</div></div>
+</section>
+<script>
+(function () {
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function pick(a, keys) {
+    for (var i = 0; i < keys.length; i++) {
+      var v = a[keys[i]];
+      if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return '';
+  }
+  function sevClass(s) {
+    s = String(s).toLowerCase();
+    if (s.indexOf('high') >= 0 || s.indexOf('crit') >= 0) return 'sev-high';
+    if (s.indexOf('med') >= 0 || s.indexOf('warn') >= 0) return 'sev-medium';
+    if (s.indexOf('low') >= 0 || s.indexOf('info') >= 0) return 'sev-low';
+    return 'sev-other';
+  }
+  async function loadAlerts() {
+    var list = document.getElementById('alerts-list');
+    var count = document.getElementById('alerts-count');
+    try {
+      var r = await fetch('/api/alerts?limit=20');
+      var data = await r.json();
+      var alerts = Array.isArray(data) ? data : (data.alerts || []);
+      count.textContent = alerts.length;
+      if (alerts.length === 0) {
+        list.innerHTML = '<div class="alerts-empty">No alerts</div>';
+        return;
+      }
+      list.innerHTML = alerts.map(function (a) {
+        var t = pick(a, ['timestamp', 'time', 'ts', 'created_at']);
+        var sev = pick(a, ['severity', 'level']);
+        var kind = pick(a, ['type', 'rule', 'kind', 'category', 'name']);
+        var msg = pick(a, ['message', 'description', 'detail', 'details', 'text']);
+        if (!msg && !kind) msg = JSON.stringify(a);
+        return '<div class="alert-row">' +
+          '<span class="alert-time">' + esc(t) + '</span>' +
+          (sev ? '<span class="alert-sev ' + sevClass(sev) + '">' + esc(sev) + '</span>' : '') +
+          (kind ? '<span class="alert-kind">' + esc(kind) + '</span>' : '') +
+          '<span class="alert-msg">' + esc(msg) + '</span></div>';
+      }).join('');
+    } catch (e) {
+      list.innerHTML = '<div class="alerts-empty">Could not reach /api/alerts</div>';
+    }
+  }
+  loadAlerts();
+  setInterval(loadAlerts, 5000);
+})();
+</script>
+<!-- alerts-panel:end -->
+
 </body>
 </html>
