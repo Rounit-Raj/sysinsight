@@ -182,3 +182,28 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - The margin is floor-bound in almost every second (CPU 15, RAM 3, disk 5): the floor sets the threshold, not the MAD.
 - Shift vs baseline: light_cpu -6.08 / +0.26, small_ram -3.58 / -5.80, disk_drip 0 / 0. Peaks: CPU 5.11% / 3.17%, disk 0.98 MB/s.
 - Conclusion: these events are not visible to threshold rules on these metrics, so lowering floors only adds false alarms. Documented as a limitation of the rule detector.
+
+## 2026-10-18 - Run 3 (subtle anomalies): replay and diagnosis findings
+
+**Replay of the live detector (original floors)**
+- Rules caught only cpu_bursts (1 of 4 events) in both run3 and rep1.
+- light_cpu, small_ram and disk_drip got 0 alerts in their windows.
+- Normal gaps had alerts: run3 4 (Network surge x3, CPU spike x1), rep1 1.
+
+**Lower floors (--floor-scale 0.5 and 0.3)**
+- Matching rule still caught only cpu_bursts (1/4) in both label files.
+- At 0.3, any alert inside a window: 3/4 events, but not the matching rule.
+- At 0.3, normal-gap alerts: run3 2, rep1 4, plus 347 alerts outside labelled windows.
+- Lowering floors adds false alarms without catching the subtle events.
+
+**Window diagnosis (floor scale 1.0, ml/diagnose_windows.py)**
+- light_cpu, small_ram, disk_drip: 0 seconds over the limit in both recordings.
+- cpu_bursts: 11 seconds over the limit, longest streak 4, 1 alert each.
+- Margins are floor-bound: CPU 15, RAM 3, disk 5.
+- Shift vs baseline (run3 / rep1): light_cpu -6.08 / +0.26, small_ram -3.58 / -5.80, disk_drip 0 / 0.
+- The subtle events barely move away from the baseline, so the problem is not only the floor values.
+
+**Files**
+- docs/results/replay_event_check_20261011.txt
+- docs/results/replay_check_floor0.3_20261012.txt
+- docs/results/rule_diag_20261018.txt
