@@ -1,0 +1,49 @@
+floor scale 1.0
+
+labels_run3_std.csv light_cpu 2026-10-11 22:04:54 (CPU spike)
+  secs=60  value median=3.73 max=5.11  baseline median=9.80
+  shift (value-baseline) median=-6.08  margin needed median=15.00  floor-bound=60/60
+  secs over limit=0  longest streak=0  closest gap (limit-value) min=19.75
+  seconds already-active (suppressed)=0  alerts that would fire=0
+
+labels_run3_std.csv small_ram 2026-10-11 22:06:54 (RAM jump)
+  secs=60  value median=21.84 max=22.63  baseline median=25.42
+  shift (value-baseline) median=-3.58  margin needed median=3.00  floor-bound=50/60
+  secs over limit=0  longest streak=0  closest gap (limit-value) min=5.79
+  seconds already-active (suppressed)=0  alerts that would fire=0
+
+labels_run3_std.csv disk_drip 2026-10-11 22:08:54 (Disk write burst)
+  secs=61  value median=0.00 max=0.98  baseline median=0.00
+  shift (value-baseline) median=0.00  margin needed median=5.00  floor-bound=61/61
+  secs over limit=0  longest streak=0  closest gap (limit-value) min=4.02
+  seconds already-active (suppressed)=0  alerts that would fire=0
+
+labels_run3_std.csv cpu_bursts 2026-10-11 22:10:55 (CPU spike)
+  secs=29  value median=2.65 max=100.00  baseline median=3.51
+  shift (value-baseline) median=-0.87  margin needed median=15.00  floor-bound=29/29
+  secs over limit=11  longest streak=4  closest gap (limit-value) min=-81.61
+  seconds already-active (suppressed)=28  alerts that would fire=1
+
+labels_run3_rep1_std.csv light_cpu 2026-10-11 23:02:59 (CPU spike)
+  secs=61  value median=2.50 max=3.17  baseline median=2.24
+  shift (value-baseline) median=0.26  margin needed median=15.00  floor-bound=61/61
+  secs over limit=0  longest streak=0  closest gap (limit-value) min=14.07
+  seconds already-active (suppressed)=0  alerts that would fire=0
+
+labels_run3_rep1_std.csv small_ram 2026-10-11 23:05:00 (RAM jump)
+  secs=60  value median=12.26 max=13.46  baseline median=18.06
+  shift (value-baseline) median=-5.80  margin needed median=3.00  floor-bound=60/60
+  secs over limit=0  longest streak=0  closest gap (limit-value) min=7.63
+  seconds already-active (suppressed)=0  alerts that would fire=0
+
+labels_run3_rep1_std.csv disk_drip 2026-10-11 23:07:00 (Disk write burst)
+  secs=60  value median=0.00 max=0.98  baseline median=0.00
+  shift (value-baseline) median=0.00  margin needed median=5.00  floor-bound=60/60
+  secs over limit=0  longest streak=0  closest gap (limit-value) min=4.02
+  seconds already-active (suppressed)=0  alerts that would fire=0
+
+labels_run3_rep1_std.csv cpu_bursts 2026-10-11 23:09:00 (CPU spike)
+  secs=29  value median=1.00 max=100.00  baseline median=1.08
+  shift (value-baseline) median=-0.08  margin needed median=15.00  floor-bound=29/29
+  secs over limit=11  longest streak=4  closest gap (limit-value) min=-83.92
+  seconds already-active (suppressed)=28  alerts that would fire=1

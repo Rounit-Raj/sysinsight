@@ -174,3 +174,11 @@ Ran `ml/live_detector.py --replay --dry-run` on the two run 3 recordings and com
 - The floor 0.5 check result looked wrong (fewer detections than the original floors), so it is not used here.
 - Earlier evaluate_run3.py numbers are baseline-mismatch artifacts (the 1800-row baseline did not match the machine state during the run 3 windows), so the replay results above are the ones to trust.
 - Results files: docs/results/replay_event_check_20261011.txt, docs/results/replay_check_floor0.3_20261012.txt.
+
+## 2026-10-18 - Rule diagnosis on run 3 windows
+- Ran ml/diagnose_windows.py (floor scale 1.0) on labels_run3_std.csv and labels_run3_rep1_std.csv. Output: docs/results/rule_diag_20261018.txt
+- light_cpu, small_ram, disk_drip: 0 seconds over the limit in both recordings (6 of 8 events never cross).
+- cpu_bursts: crosses the limit (11 secs over, longest streak 4), 1 alert in each recording.
+- The margin is floor-bound in almost every second (CPU 15, RAM 3, disk 5): the floor sets the threshold, not the MAD.
+- Shift vs baseline: light_cpu -6.08 / +0.26, small_ram -3.58 / -5.80, disk_drip 0 / 0. Peaks: CPU 5.11% / 3.17%, disk 0.98 MB/s.
+- Conclusion: these events are not visible to threshold rules on these metrics, so lowering floors only adds false alarms. Documented as a limitation of the rule detector.
