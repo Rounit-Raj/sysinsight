@@ -113,5 +113,14 @@ def api_processes_latest():
     return jsonify({"timestamp": stamp, "columns": header, "rows": rows})
 
 
+@app.route("/api/io")
+def io_history():
+    minutes = request.args.get("minutes", default=5, type=int)
+    minutes = max(1, min(minutes, 120))
+    rows = query("SELECT * FROM io ORDER BY id DESC LIMIT ?", (minutes * 60,))
+    rows.reverse()  # oldest first, ready for charting
+    return jsonify(rows)
+
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)

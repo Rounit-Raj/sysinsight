@@ -250,5 +250,68 @@ async function loadProcesses() {
 loadProcesses();
 setInterval(loadProcesses, 5000);
 </script>
+<section id="io-panel" style="margin:16px;padding:16px;background:#3b4252;border-radius:8px;color:#d8dee9;font-family:inherit;">
+  <h3 style="margin:0 0 12px 0;">Disk &amp; Network I/O (last 5 min)</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:16px;">
+    <div style="flex:1 1 320px;height:220px;"><canvas id="disk-io-chart"></canvas></div>
+    <div style="flex:1 1 320px;height:220px;"><canvas id="net-io-chart"></canvas></div>
+  </div>
+</section>
+<script>
+(function () {
+  function makeChart(id, name1, name2, color1, color2, unit) {
+    function ds(name, color) {
+      return { label: name, data: [], borderColor: color, backgroundColor: color,
+               borderWidth: 2, pointRadius: 0, tension: 0.2 };
+    }
+    return new Chart(document.getElementById(id), {
+      type: 'line',
+      data: { labels: [], datasets: [ds(name1, color1), ds(name2, color2)] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { color: '#d8dee9' } } },
+        scales: {
+          x: { ticks: { color: '#d8dee9', maxTicksLimit: 6 }, grid: { color: '#434c5e' } },
+          y: { beginAtZero: true,
+               title: { display: true, text: unit, color: '#d8dee9' },
+               ticks: { color: '#d8dee9' }, grid: { color: '#434c5e' } }
+        }
+      }
+    });
+  }
+
+  var diskChart = makeChart('disk-io-chart', 'Read', 'Write', '#88c0d0', '#ebcb8b', 'MB/s');
+  var netChart  = makeChart('net-io-chart', 'Download (rx)', 'Upload (tx)', '#a3be8c', '#bf616a', 'KB/s');
+
+  function fill(chart, labels, a, b) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = a;
+    chart.data.datasets[1].data = b;
+    chart.update('none');
+  }
+
+  async function loadIO() {
+    try {
+      var r = await fetch('/api/io?minutes=5');
+      var rows = await r.json();
+      var labels = rows.map(function (x) { return String(x.timestamp).slice(11, 19); });
+      fill(diskChart, labels,
+           rows.map(function (x) { return x.disk_read_mb_s; }),
+           rows.map(function (x) { return x.disk_write_mb_s; }));
+      fill(netChart, labels,
+           rows.map(function (x) { return x.net_rx_kb_s; }),
+           rows.map(function (x) { return x.net_tx_kb_s; }));
+    } catch (e) {
+      console.error('I/O chart: could not reach /api/io', e);
+    }
+  }
+
+  loadIO();
+  setInterval(loadIO, 2000);
+})();
+</script>
 </body>
 </html>
