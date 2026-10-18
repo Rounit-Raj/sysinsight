@@ -201,5 +201,54 @@ setInterval(updateForecast, 5000);
 <!-- alerts-panel:end -->
 
 <script src="static/badge.js"></script>
+<section id="proc-panel" style="margin:16px;padding:16px;background:#3b4252;border-radius:8px;color:#d8dee9;font-family:inherit;">
+  <h2 style="margin:0 0 12px 0;font-size:16px;color:#88c0d0;">Top 5 processes by CPU</h2>
+  <table id="proc-table" style="width:100%;border-collapse:collapse;font-size:14px;">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+  <div id="proc-time" style="margin-top:8px;font-size:12px;color:#81a1c1;"></div>
+</section>
+
+<script>
+async function loadProcesses() {
+  try {
+    const res = await fetch('/api/processes/latest');
+    const data = await res.json();
+    if (data.error) return;
+
+    const thead = document.querySelector('#proc-table thead');
+    const tbody = document.querySelector('#proc-table tbody');
+    thead.textContent = '';
+    tbody.textContent = '';
+
+    const headRow = document.createElement('tr');
+    data.columns.forEach(function (col) {
+      const th = document.createElement('th');
+      th.textContent = col;
+      th.style.cssText = 'text-align:left;padding:6px 8px;border-bottom:1px solid #4c566a;color:#88c0d0;';
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+
+    data.rows.forEach(function (row) {
+      const tr = document.createElement('tr');
+      data.columns.forEach(function (col) {
+        const td = document.createElement('td');
+        td.textContent = row[col];
+        td.style.cssText = 'padding:6px 8px;border-bottom:1px solid #434c5e;';
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('proc-time').textContent = 'Sampled at ' + data.timestamp;
+  } catch (e) {
+    console.error('process table failed', e);
+  }
+}
+loadProcesses();
+setInterval(loadProcesses, 5000);
+</script>
 </body>
 </html>
