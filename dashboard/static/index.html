@@ -83,5 +83,45 @@
 </script>
 <script src="/static/chart.umd.min.js"></script>
 <script src="/static/history_chart.js"></script>
+
+<!-- Step 5: forecast panel -->
+<div id="forecast-card" style="margin:16px auto;max-width:900px;padding:16px 20px;background:#3b4252;color:#eceff4;border:1px solid #4c566a;border-radius:8px;font-family:sans-serif;">
+  <div style="font-size:13px;color:#d8dee9;letter-spacing:1px;">CPU FORECAST (5 MIN AHEAD)</div>
+  <div style="display:flex;gap:40px;margin-top:8px;align-items:flex-end;">
+    <div><div style="font-size:12px;color:#d8dee9;">Now</div><div id="fc-now" style="font-size:32px;color:#88c0d0;">--</div></div>
+    <div><div style="font-size:12px;color:#d8dee9;">Predicted</div><div id="fc-pred" style="font-size:32px;color:#ebcb8b;">--</div></div>
+    <div><div style="font-size:12px;color:#d8dee9;">Change</div><div id="fc-delta" style="font-size:32px;">--</div></div>
+  </div>
+  <div id="fc-meta" style="margin-top:8px;font-size:12px;color:#81a1c1;">waiting for data...</div>
+</div>
+<script>
+async function updateForecast() {
+  try {
+    const [pr, lr] = await Promise.all([
+      fetch('/api/predictions/latest').then(r => r.json()),
+      fetch('/api/latest').then(r => r.json())
+    ]);
+    const p = pr.prediction || pr;
+    const l = lr.sample || lr;
+    const pred = Number(p.predicted_cpu);
+    const now = Number(l.cpu_percent);
+    document.getElementById('fc-now').textContent = isNaN(now) ? '--' : now.toFixed(1) + '%';
+    document.getElementById('fc-pred').textContent = isNaN(pred) ? '--' : pred.toFixed(1) + '%';
+    const d = document.getElementById('fc-delta');
+    if (!isNaN(pred) && !isNaN(now)) {
+      const diff = pred - now;
+      d.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1);
+      d.style.color = diff > 5 ? '#bf616a' : (diff < -5 ? '#a3be8c' : '#d8dee9');
+    }
+    document.getElementById('fc-meta').textContent =
+      'target time: ' + (p.target_time || '?') + ' | model: ' + (p.model || '?');
+  } catch (e) {
+    document.getElementById('fc-meta').textContent = 'forecast unavailable';
+  }
+}
+updateForecast();
+setInterval(updateForecast, 5000);
+</script>
+
 </body>
 </html>
