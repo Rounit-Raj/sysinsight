@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "sysinsight.db"
@@ -57,6 +57,14 @@ def alerts():
 def prediction_latest():
     rows = query("SELECT * FROM predictions ORDER BY made_at DESC LIMIT 1")
     return jsonify(rows[0] if rows else None)
+
+
+STATIC_DIR = ROOT / "dashboard" / "static"
+
+
+@app.route("/")
+def index():
+    return send_from_directory(STATIC_DIR, "index.html")
 
 
 if __name__ == "__main__":
