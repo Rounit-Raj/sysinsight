@@ -211,11 +211,42 @@ setInterval(updateForecast, 5000);
 </section>
 
 <script>
+const PROC_LABELS = {
+  pid: 'PID',
+  name: 'Process',
+  comm: 'Process',
+  command: 'Process',
+  cpu_percent: 'CPU %',
+  mem_mb: 'Memory (MB)',
+  mem_percent: 'Memory %',
+  rss_mb: 'Memory (MB)'
+};
+
+function procLabel(col) {
+  const key = col.toLowerCase();
+  if (PROC_LABELS[key]) return PROC_LABELS[key];
+  const text = col.replace(/_/g, ' ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function procFormat(col, value) {
+  const key = col.toLowerCase();
+  if (key === 'pid' || key === 'name' || key === 'comm' || key === 'command') return value;
+  const num = Number(value);
+  if (value === '' || isNaN(num)) return value;
+  if (key.indexOf('mb') !== -1) return Math.round(num).toString();
+  return num.toFixed(1);
+}
+
 async function loadProcesses() {
   try {
     const res = await fetch('/api/processes/latest');
     const data = await res.json();
     if (data.error) return;
+
+    const cols = data.columns.filter(function (c) {
+      return c.toLowerCase().indexOf('time') === -1;
+    });
 
     const thead = document.querySelector('#proc-table thead');
     const tbody = document.querySelector('#proc-table tbody');
@@ -223,9 +254,9 @@ async function loadProcesses() {
     tbody.textContent = '';
 
     const headRow = document.createElement('tr');
-    data.columns.forEach(function (col) {
+    cols.forEach(function (col) {
       const th = document.createElement('th');
-      th.textContent = col;
+      th.textContent = procLabel(col);
       th.style.cssText = 'text-align:left;padding:6px 8px;border-bottom:1px solid #4c566a;color:#88c0d0;';
       headRow.appendChild(th);
     });
@@ -233,9 +264,9 @@ async function loadProcesses() {
 
     data.rows.forEach(function (row) {
       const tr = document.createElement('tr');
-      data.columns.forEach(function (col) {
+      cols.forEach(function (col) {
         const td = document.createElement('td');
-        td.textContent = row[col];
+        td.textContent = procFormat(col, row[col]);
         td.style.cssText = 'padding:6px 8px;border-bottom:1px solid #434c5e;';
         tr.appendChild(td);
       });
