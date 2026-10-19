@@ -22,7 +22,7 @@
       responsive: true,
       scales: {
         x: { ticks: { color: '#d8dee9', maxTicksLimit: 8 }, grid: { color: '#4c566a' } },
-        y: { min: 0, max: 100, ticks: { color: '#d8dee9' }, grid: { color: '#4c566a' } }
+        y: { min: 0, max: 20, ticks: { color: '#d8dee9' }, grid: { color: '#4c566a' } }
       },
       plugins: { legend: { labels: { color: '#d8dee9' } } }
     }
@@ -36,7 +36,10 @@
       chart.data.labels = rows.map(r => String(r.timestamp).slice(11, 19));
       chart.data.datasets[0].data = rows.map(r => r.cpu_percent);
       chart.data.datasets[1].data = rows.map(r => r.ram_percent);
-      chart.update('none');
+      const vals = chart.data.datasets[0].data.concat(chart.data.datasets[1].data).filter(v => typeof v === 'number');
+    const peak = vals.length ? Math.max(...vals) : 0;
+    chart.options.scales.y.max = Math.min(100, Math.max(10, Math.ceil(peak * 1.3 / 5) * 5));
+    chart.update('none');
     } catch (e) {
       console.error('chart refresh failed', e);
     }
