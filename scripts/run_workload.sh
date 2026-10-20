@@ -4,22 +4,23 @@
 # The collector must be running. Writes data/labels_<run_name>.csv
 set -u
 RUN="${1:?usage: run_workload.sh <run_name> [net_url]}"
-NET_URL="${2:-https://speed.hetzner.de/100MB.bin}"
+NET_URL='https://proof.ovh.net/files/100Mb.dat'
 OUT="data/labels_${RUN}.csv"
 CALM=60     # seconds of calm before each event
 EVENT=30    # seconds per event
 
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
-cleanup() { pkill -P $$ 2>/dev/null; rm -f /tmp/sysinsight_drip; }
+cleanup() { pkill -P $$ 2>/dev/null; rm -f $HOME/sysinsight_disk/drip; }
 trap cleanup EXIT INT TERM
 
+mkdir -p "$HOME/sysinsight_disk"
 ev_cpu_heavy()  { stress-ng --cpu 0 --timeout ${EVENT}s -q; }
 ev_ram_heavy()  { stress-ng --vm 1 --vm-bytes 40% --vm-keep --timeout ${EVENT}s -q; }
-ev_disk_heavy() { stress-ng --hdd 1 --hdd-bytes 1g --temp-path /tmp --timeout ${EVENT}s -q; }
-ev_net_burst()  { timeout ${EVENT} bash -c "while true; do curl -s -o /dev/null '$NET_URL'; done"; }
+ev_disk_heavy() { mkdir -p $HOME/sysinsight_disk; timeout ${EVENT} dd if=/dev/zero of=$HOME/sysinsight_disk/big bs=1M oflag=direct 2>/dev/null; rm -f $HOME/sysinsight_disk/big; }
+ev_net_burst()  { timeout ${EVENT} bash -c "while true; do curl -sL -o /dev/null '$NET_URL'; done"; }
 ev_light_cpu()  { stress-ng --cpu 1 --cpu-load 20 --timeout ${EVENT}s -q; }
 ev_small_ram()  { stress-ng --vm 1 --vm-bytes 300M --vm-keep --timeout ${EVENT}s -q; }
-ev_disk_drip()  { for i in $(seq 1 $EVENT); do dd if=/dev/zero of=/tmp/sysinsight_drip bs=100k count=1 oflag=dsync 2>/dev/null; sleep 1; done; }
+ev_disk_drip()  { for i in $(seq 1 $EVENT); do dd if=/dev/zero of=$HOME/sysinsight_disk/drip bs=100k count=1 oflag=dsync 2>/dev/null; sleep 1; done; }
 ev_cpu_bursts() { for i in $(seq 1 $((EVENT/5))); do stress-ng --cpu 2 --timeout 2s -q; sleep 3; done; }
 
 # label|kind|subtle  (fixed order = repeatable)
