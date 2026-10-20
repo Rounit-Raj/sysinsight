@@ -291,6 +291,7 @@ int main() {
     CpuTimes prevCpu = readCpuTimes();
     auto prevProcs = readAllProcesses();
     IoSample prevIo = readIo();
+    auto prevIoTime = std::chrono::steady_clock::now();
 
     std::thread writer(writerThread, &db, &csv, &procCsv, &ioCsv);
 
@@ -311,6 +312,12 @@ int main() {
         s.ram = readMemUsagePercent();
         s.load = readLoadAverage1Min();
 
+        // read I/O counters early in the tick and time the interval exactly
+        IoSample currIo = readIo();
+        auto currIoTime = std::chrono::steady_clock::now();
+        double dt = std::chrono::duration<double>(currIoTime - prevIoTime).count();
+        if (dt <= 0.0) dt = 1.0;
+
         auto currProcs = readAllProcesses();
         long long totalDiff = currCpu.totalTime() - prevCpu.totalTime();
         std::vector<ProcRow> rows;
@@ -325,11 +332,10 @@ int main() {
         if (rows.size() > 5) rows.resize(5);
         s.top = std::move(rows);
 
-        IoSample currIo = readIo();
-        s.diskRead  = (currIo.diskReadSectors  - prevIo.diskReadSectors)  * 512.0 / 1048576.0;
-        s.diskWrite = (currIo.diskWriteSectors - prevIo.diskWriteSectors) * 512.0 / 1048576.0;
-        s.netRx = (currIo.netRxBytes - prevIo.netRxBytes) / 1024.0;
-        s.netTx = (currIo.netTxBytes - prevIo.netTxBytes) / 1024.0;
+        s.diskRead  = (currIo.diskReadSectors  - prevIo.diskReadSectors)  * 512.0 / 1048576.0 / dt;
+        s.diskWrite = (currIo.diskWriteSectors - prevIo.diskWriteSectors) * 512.0 / 1048576.0 / dt;
+        s.netRx = (currIo.netRxBytes - prevIo.netRxBytes) / 1024.0 / dt;
+        s.netTx = (currIo.netTxBytes - prevIo.netTxBytes) / 1024.0 / dt;
         s.diskRead = std::max(0.0, s.diskRead);
         s.diskWrite = std::max(0.0, s.diskWrite);
         s.netRx = std::max(0.0, s.netRx);
@@ -347,6 +353,7 @@ int main() {
         prevCpu = currCpu;
         prevProcs = std::move(currProcs);
         prevIo = currIo;
+        prevIoTime = currIoTime;
 
         next += std::chrono::seconds(1);
         std::this_thread::sleep_until(next);
