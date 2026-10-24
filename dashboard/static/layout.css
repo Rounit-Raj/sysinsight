@@ -1,290 +1,40 @@
-/* ---------- Nord design tokens ---------- */
+/* SysInsight dashboard: Nord design tokens + shared panel style */
 :root {
-  /* Polar Night (backgrounds) */
-  --nord0: #2E3440;
-  --nord1: #3B4252;
-  --nord2: #434C5E;
-  --nord3: #4C566A;
-  /* Snow Storm (text) */
-  --nord4: #D8DEE9;
-  --nord5: #E5E9F0;
-  --nord6: #ECEFF4;
-  /* Frost (accents) */
-  --nord7: #8FBCBB;
-  --nord8: #88C0D0;
-  --nord9: #81A1C1;
-  --nord10: #5E81AC;
-  /* Aurora (status) */
-  --nord11: #BF616A;  /* red    - critical */
-  --nord12: #D08770;  /* orange - high */
-  --nord13: #EBCB8B;  /* yellow - warning / low */
-  --nord14: #A3BE8C;  /* green  - ok */
-  --nord15: #B48EAD;  /* purple */
+  /* Nord palette */
+  --sx-bg:        #2E3440;  /* page background */
+  --sx-surface:   #3B4252;  /* panel background */
+  --sx-surface-2: #434C5E;  /* raised elements, borders */
+  --sx-border:    #4C566A;
+  --sx-text:      #D8DEE9;
+  --sx-text-dim:  #9aa5b8;
+  --sx-text-hi:   #ECEFF4;
+  --sx-accent:    #88C0D0;
+  --sx-blue:      #81A1C1;
+  --sx-ok:        #A3BE8C;
+  --sx-warn:      #EBCB8B;
+  --sx-bad:       #BF616A;
 
-  /* Semantic names (for components) */
-  --bg:           var(--nord0);
-  --surface:      var(--nord1);
-  --border:       var(--nord3);
-  --text:         var(--nord4);
-  --text-strong:  var(--nord6);
-  --text-muted:   var(--nord9);
-  --accent:       var(--nord8);
-  --ok:           var(--nord14);
-  --warn:         var(--nord13);
-  --crit:         var(--nord11);
-
-  /* Spacing, shape, type */
-  --gap:      16px;
-  --pad:      16px;
-  --radius:   8px;
-  --font-sm:  0.8rem;
-  --font-md:  0.95rem;
+  /* Spacing and shape */
+  --sx-gap:       16px;
+  --sx-pad:       16px;
+  --sx-radius:    8px;
 }
 
-/* ---------- Shared panel (card) ---------- */
+/* One shared panel style */
 .panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--pad);
-  color: var(--text);
-  min-width: 0;            /* chart shrinks in grid cells */
-  overflow: hidden;
+  background: var(--sx-surface);
+  border: 1px solid var(--sx-border);
+  border-radius: var(--sx-radius);
+  padding: var(--sx-pad);
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .panel-title {
   margin: 0 0 12px 0;
-  font-size: var(--font-sm);
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-/* Tables inside panels */
-.panel table { width: 100%; border-collapse: collapse; font-size: var(--font-md); }
-.panel th { text-align: left; font-size: var(--font-sm); color: var(--text-muted); font-weight: 600; padding: 4px 8px; border-bottom: 1px solid var(--border); }
-.panel td { padding: 6px 8px; border-bottom: 1px solid var(--nord2); }
-.panel tr:last-child td { border-bottom: none; }
-
-/* Status colours as classes (replaces inline style="color:...") */
-.text-ok   { color: var(--ok); }
-.text-warn { color: var(--warn); }
-.text-crit { color: var(--crit); }
-.text-muted { color: var(--text-muted); }/* SysInsight dashboard layout (Nord) */
-body {
-  display: grid !important;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 16px;
-  max-width: 1400px;
-  margin: 0 auto !important;
-  padding: 16px !important;
-  box-sizing: border-box;
-  align-items: start;
-}
-
-/* default:  spanning the full row (header, badge, cards, history chart) */
-body > * { grid-column: 1 / -1; min-width: 0; }
-
-/* panels:  inline margins reset /max-width so the grid controls spacing */
-#forecast-card, #alerts-panel, #proc-panel, #io-panel {
-  margin: 0 !important;
-  max-width: none !important;
-  width: auto !important;
-  box-sizing: border-box;
-  height: 100%;
-}
-
-/* row 1: forecast (left) + alerts (right); row 2: processes (left) + I/O (right) */
-#forecast-card { grid-column: span 5; }
-#alerts-panel  { grid-column: span 7; }
-#proc-panel    { grid-column: span 5; }
-#io-panel      { grid-column: span 7; }
-
-/* tablet/phone: stack everything */
-@media (max-width: 900px) {
-  #forecast-card, #alerts-panel, #proc-panel, #io-panel { grid-column: 1 / -1; }
-}
-
-/* ---- shared panel ---- */
-.panel {
-  margin: 16px auto;
-  max-width: 900px;
-  padding: 16px 20px;
-  background: var(--bg-panel, #3b4252);
-  color: var(--text, #d8dee9);
-  border: 1px solid var(--border, #4c566a);
-  border-radius: 8px;
-  font-family: inherit;
-}
-.panel-title {
-  margin: 0 0 12px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--accent, #88c0d0);
-}
-.meta {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--muted, #81a1c1);
-}
-
-/* ---- forecast ---- */
-.fc-row { display: flex; gap: 40px; margin-top: 8px; align-items: flex-end; }
-.fc-label { font-size: 12px; color: var(--text, #d8dee9); }
-.fc-value { font-size: 32px; }
-.fc-value--now { color: var(--accent, #88c0d0); }
-.fc-value--pred { color: var(--warn, #ebcb8b); }
-
-/* ---- process table ---- */
-.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-
-/* ---- I/O charts ---- */
-.io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
-.chart-box { flex: 1 1 320px; height: 220px; }
-
-/* ---- shared panel ---- */
-.panel {
-  margin: 16px auto;
-  max-width: 900px;
-  padding: 16px 20px;
-  background: var(--bg-panel, #3b4252);
-  color: var(--text, #d8dee9);
-  border: 1px solid var(--border, #4c566a);
-  border-radius: 8px;
-  font-family: inherit;
-}
-.panel-title {
-  margin: 0 0 12px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--accent, #88c0d0);
-}
-.meta {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--muted, #81a1c1);
-}
-
-/* ---- forecast ---- */
-.fc-row { display: flex; gap: 40px; margin-top: 8px; align-items: flex-end; }
-.fc-label { font-size: 12px; color: var(--text, #d8dee9); }
-.fc-value { font-size: 32px; }
-.fc-value--now { color: var(--accent, #88c0d0); }
-.fc-value--pred { color: var(--warn, #ebcb8b); }
-
-/* ---- process table ---- */
-.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-
-/* ---- I/O charts ---- */
-.io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
-.chart-box { flex: 1 1 320px; height: 220px; }
-
-/* ---- shared panel ---- */
-.panel {
-  margin: 16px auto;
-  max-width: 900px;
-  padding: 16px 20px;
-  background: var(--bg-panel, #3b4252);
-  color: var(--text, #d8dee9);
-  border: 1px solid var(--border, #4c566a);
-  border-radius: 8px;
-  font-family: inherit;
-}
-.panel-title {
-  margin: 0 0 12px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--accent, #88c0d0);
-}
-.meta {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--muted, #81a1c1);
-}
-
-/* ---- forecast ---- */
-.fc-row { display: flex; gap: 40px; margin-top: 8px; align-items: flex-end; }
-.fc-label { font-size: 12px; color: var(--text, #d8dee9); }
-.fc-value { font-size: 32px; }
-.fc-value--now { color: var(--accent, #88c0d0); }
-.fc-value--pred { color: var(--warn, #ebcb8b); }
-
-/* ---- process table ---- */
-.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-
-/* ---- I/O charts ---- */
-.io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
-.chart-box { flex: 1 1 320px; height: 220px; }
-
-/* Classes replacing inline styles set from JavaScript */
-.bar-fill { width: calc(var(--w, 0) * 1%); background: var(--c, #88c0d0); }
-.delta-up { color: #bf616a; }
-.delta-down { color: #a3be8c; }
-.delta-flat { color: #d8dee9; }
-.proc-th { text-align: left; padding: 6px 8px; border-bottom: 1px solid #4c566a; color: #88c0d0; }
-.proc-td { padding: 6px 8px; border-bottom: 1px solid #434c5e; }
-.history-panel { margin: 16px auto; max-width: 960px; }
-.history-title { margin: 0 0 8px; color: #d8dee9; font: 600 14px sans-serif; }
-
-/* ---- Step 3: page grid ---- */
-body {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 16px;
-  align-items: stretch;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px;
-}
-body > * { grid-column: 1 / -1; margin: 0; }
-
-#forecast-card { grid-column: span 5; }
-#alerts-panel  { grid-column: span 7; }
-#proc-panel    { grid-column: span 5; }
-#io-panel      { grid-column: span 7; }
-
-#alerts-list { max-height: 220px; overflow-y: auto; }
-
-@media (max-width: 900px) {
-  #forecast-card, #alerts-panel, #proc-panel, #io-panel { grid-column: 1 / -1; }
-}
-
-/* ---- Step 3: grid layout ---- */
-.dashboard {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: var(--gap, 16px);
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px;
-}
-.span-12 { grid-column: span 12; }
-.span-8  { grid-column: span 8; }
-.span-6  { grid-column: span 6; }
-.span-4  { grid-column: span 4; }
-
-@media (max-width: 1000px) {
-  .span-8, .span-6, .span-4 { grid-column: span 12; }
-}
-
-/* ---- Step 3c: place panels by id (no HTML class edits needed) ---- */
-.dashboard > * { grid-column: span 12; order: 3; }   /* default: full width, history chart lands here */
-
-.dashboard > .cards     { order: 1; }
-.dashboard > footer     { order: 2; margin-top: 0; }
-
-/* row 2: history chart (8) + forecast (4) */
-.dashboard > #forecast-card { grid-column: span 4; order: 4; }
-.dashboard > .history-panel { grid-column: span 8; }
-
-/* row 3: alerts (6) + processes (6) */
-.dashboard > #alerts-panel { grid-column: span 6; order: 5; margin: 0; }
-.dashboard > #proc-panel   { grid-column: span 6; order: 5; }
-
-/* row 4: disk and network I/O */
-.dashboard > #io-panel { grid-column: span 12; order: 6; }
-
-@media (max-width: 1000px) {
-  .dashboard > * { grid-column: span 12 !important; }
+  color: var(--sx-accent);
 }
