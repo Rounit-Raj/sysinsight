@@ -36,7 +36,7 @@
   <h1>SYSINSIGHT</h1>
   <div id="status" class="bad">connecting…</div>
 </header>
-<main>
+<main class="dashboard">
   <div class="cards">
     <div class="card"><div class="label">CPU</div>
       <div class="value" id="cpu-val">--</div>
@@ -48,7 +48,6 @@
       <div class="value" id="load-val">--</div></div>
   </div>
   <footer>Last sample: <span id="ts">--</span></footer>
-</main>
 <script>
   function colorFor(p) { return p >= 85 ? "var(--red)" : p >= 60 ? "var(--yellow)" : "var(--green)"; }
 
@@ -345,5 +344,6 @@ setInterval(loadProcesses, 5000);
   setInterval(loadIO, 2000);
 })();
 </script>
+</main>
 </body>
 </html>

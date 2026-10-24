@@ -249,3 +249,42 @@ body > * { grid-column: 1 / -1; margin: 0; }
 @media (max-width: 900px) {
   #forecast-card, #alerts-panel, #proc-panel, #io-panel { grid-column: 1 / -1; }
 }
+
+/* ---- Step 3: grid layout ---- */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap, 16px);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.span-12 { grid-column: span 12; }
+.span-8  { grid-column: span 8; }
+.span-6  { grid-column: span 6; }
+.span-4  { grid-column: span 4; }
+
+@media (max-width: 1000px) {
+  .span-8, .span-6, .span-4 { grid-column: span 12; }
+}
+
+/* ---- Step 3c: place panels by id (no HTML class edits needed) ---- */
+.dashboard > * { grid-column: span 12; order: 3; }   /* default: full width, history chart lands here */
+
+.dashboard > .cards     { order: 1; }
+.dashboard > footer     { order: 2; margin-top: 0; }
+
+/* row 2: history chart (8) + forecast (4) */
+.dashboard > #forecast-card { grid-column: span 4; order: 4; }
+.dashboard > .history-panel { grid-column: span 8; }
+
+/* row 3: alerts (6) + processes (6) */
+.dashboard > #alerts-panel { grid-column: span 6; order: 5; margin: 0; }
+.dashboard > #proc-panel   { grid-column: span 6; order: 5; }
+
+/* row 4: disk and network I/O */
+.dashboard > #io-panel { grid-column: span 12; order: 6; }
+
+@media (max-width: 1000px) {
+  .dashboard > * { grid-column: span 12 !important; }
+}

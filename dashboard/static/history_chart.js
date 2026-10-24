@@ -5,7 +5,7 @@
   section.innerHTML =
     '<h2 class="history-title">CPU &amp; RAM, last 10 minutes</h2>' +
     '<canvas id="cpuRamChart" height="110"></canvas>';
-  document.body.appendChild(section);
+  (document.querySelector('main.dashboard') || document.body).appendChild(section);
 
   const chart = new Chart(document.getElementById('cpuRamChart'), {
     type: 'line',
