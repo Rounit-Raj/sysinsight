@@ -1,0 +1,34 @@
+/* SysInsight dashboard layout (Nord) */
+body {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1400px;
+  margin: 0 auto !important;
+  padding: 16px !important;
+  box-sizing: border-box;
+  align-items: start;
+}
+
+/* default: everything spans the full row (header, badge, cards, history chart) */
+body > * { grid-column: 1 / -1; min-width: 0; }
+
+/* panels: reset the old inline margins/max-width so the grid controls spacing */
+#forecast-card, #alerts-panel, #proc-panel, #io-panel {
+  margin: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+/* row 1: forecast (left) + alerts (right); row 2: processes (left) + I/O (right) */
+#forecast-card { grid-column: span 5; }
+#alerts-panel  { grid-column: span 7; }
+#proc-panel    { grid-column: span 5; }
+#io-panel      { grid-column: span 7; }
+
+/* tablet/phone: stack everything */
+@media (max-width: 900px) {
+  #forecast-card, #alerts-panel, #proc-panel, #io-panel { grid-column: 1 / -1; }
+}
