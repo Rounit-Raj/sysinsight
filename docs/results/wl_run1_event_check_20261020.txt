@@ -1,0 +1,22 @@
+alerts parsed: 472   labels: data/labels_wl_run1.csv
+label       kind    subtle  matching  any   ml  
+normal      normal                    1           <- alerts in calm window
+cpu_heavy   cpu     no      1         1     0   
+normal      normal                    1           <- alerts in calm window
+ram_heavy   ram     no      1         1     0   
+normal      normal                    0           <- alerts in calm window
+disk_heavy  disk    no      0         0     0   
+normal      normal                    0           <- alerts in calm window
+net_burst   net     no      0         0     0   
+normal      normal                    0           <- alerts in calm window
+light_cpu   cpu     yes     0         0     0   
+normal      normal                    0           <- alerts in calm window
+small_ram   ram     yes     0         0     0   
+normal      normal                    0           <- alerts in calm window
+disk_drip   disk    yes     0         0     0   
+normal      normal                    0           <- alerts in calm window
+cpu_bursts  cpu     yes     0         0     0   
+normal      normal                    0           <- alerts in calm window
+
+events caught by their matching rule: 2/8
+all alerts inside the run span 2026-10-20 12:48:29 to 2026-10-20 13:01:30: 2

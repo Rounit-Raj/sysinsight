@@ -56,8 +56,8 @@
     const val = Number(v);
     document.getElementById(id + "-val").textContent = val.toFixed(1) + "%";
     const bar = document.getElementById(id + "-bar");
-    bar.style.width = Math.min(val, 100) + "%";
-    bar.style.background = colorFor(val);
+    bar.classList.add("bar-fill"); bar.style.setProperty("--w", Math.min(val, 100));
+    bar.style.setProperty("--c", colorFor(val));
   }
 
   async function refresh() {
@@ -86,14 +86,14 @@
 <script src="/static/history_chart.js"></script>
 
 <!-- Step 5: forecast panel -->
-<div id="forecast-card" style="margin:16px auto;max-width:900px;padding:16px 20px;background:#3b4252;color:#eceff4;border:1px solid #4c566a;border-radius:8px;font-family:sans-serif;">
-  <div style="font-size:13px;color:#d8dee9;letter-spacing:1px;">CPU FORECAST (5 MIN AHEAD)</div>
-  <div style="display:flex;gap:40px;margin-top:8px;align-items:flex-end;">
-    <div><div style="font-size:12px;color:#d8dee9;">Now</div><div id="fc-now" style="font-size:32px;color:#88c0d0;">--</div></div>
-    <div><div style="font-size:12px;color:#d8dee9;">Predicted</div><div id="fc-pred" style="font-size:32px;color:#ebcb8b;">--</div></div>
-    <div><div style="font-size:12px;color:#d8dee9;">Change</div><div id="fc-delta" style="font-size:32px;">--</div></div>
+<div id="forecast-card" class="panel">
+  <h2 class="panel-title">CPU FORECAST (5 MIN AHEAD)</h2>
+  <div class="fc-row">
+    <div><div class="fc-label">Now</div><div id="fc-now" class="fc-value fc-value--now">--</div></div>
+    <div><div class="fc-label">Predicted</div><div id="fc-pred" class="fc-value fc-value--pred">--</div></div>
+    <div><div class="fc-label">Change</div><div id="fc-delta" class="fc-value">--</div></div>
   </div>
-  <div id="fc-meta" style="margin-top:8px;font-size:12px;color:#81a1c1;">waiting for data...</div>
+  <div id="fc-meta" class="meta">waiting for data...</div>
 </div>
 <script>
 async function updateForecast() {
@@ -112,7 +112,7 @@ async function updateForecast() {
     if (!isNaN(pred) && !isNaN(now)) {
       const diff = pred - now;
       d.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1);
-      d.style.color = diff > 5 ? '#bf616a' : (diff < -5 ? '#a3be8c' : '#d8dee9');
+      d.classList.remove('delta-up', 'delta-down', 'delta-flat'); d.classList.add(diff > 5 ? 'delta-up' : (diff < -5 ? 'delta-down' : 'delta-flat'));
     }
     document.getElementById('fc-meta').textContent =
       'target time: ' + (p.target_time || '?') + ' | model: ' + (p.model || '?');
@@ -202,13 +202,13 @@ setInterval(updateForecast, 5000);
 <!-- alerts-panel:end -->
 
 <script src="static/badge.js"></script>
-<section id="proc-panel" style="margin:16px;padding:16px;background:#3b4252;border-radius:8px;color:#d8dee9;font-family:inherit;">
-  <h2 style="margin:0 0 12px 0;font-size:16px;color:#88c0d0;">Top 5 processes by CPU</h2>
-  <table id="proc-table" style="width:100%;border-collapse:collapse;font-size:14px;">
+<section id="proc-panel" class="panel">
+  <h2 class="panel-title">Top 5 processes by CPU</h2>
+  <table id="proc-table" class="data-table">
     <thead></thead>
     <tbody></tbody>
   </table>
-  <div id="proc-time" style="margin-top:8px;font-size:12px;color:#81a1c1;"></div>
+  <div id="proc-time" class="meta"></div>
 </section>
 
 <script>
@@ -258,7 +258,7 @@ async function loadProcesses() {
     cols.forEach(function (col) {
       const th = document.createElement('th');
       th.textContent = procLabel(col);
-      th.style.cssText = 'text-align:left;padding:6px 8px;border-bottom:1px solid #4c566a;color:#88c0d0;';
+      th.className = 'proc-th';
       headRow.appendChild(th);
     });
     thead.appendChild(headRow);
@@ -268,7 +268,7 @@ async function loadProcesses() {
       cols.forEach(function (col) {
         const td = document.createElement('td');
         td.textContent = procFormat(col, row[col]);
-        td.style.cssText = 'padding:6px 8px;border-bottom:1px solid #434c5e;';
+        td.className = 'proc-td';
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
@@ -282,11 +282,11 @@ async function loadProcesses() {
 loadProcesses();
 setInterval(loadProcesses, 5000);
 </script>
-<section id="io-panel" style="margin:16px;padding:16px;background:#3b4252;border-radius:8px;color:#d8dee9;font-family:inherit;">
-  <h3 style="margin:0 0 12px 0;">Disk &amp; Network I/O (last 5 min)</h3>
-  <div style="display:flex;flex-wrap:wrap;gap:16px;">
-    <div style="flex:1 1 320px;height:220px;"><canvas id="disk-io-chart"></canvas></div>
-    <div style="flex:1 1 320px;height:220px;"><canvas id="net-io-chart"></canvas></div>
+<section id="io-panel" class="panel">
+  <h2 class="panel-title">Disk &amp; Network I/O (last 5 min)</h2>
+  <div class="io-grid">
+    <div class="chart-box"><canvas id="disk-io-chart"></canvas></div>
+    <div class="chart-box"><canvas id="net-io-chart"></canvas></div>
   </div>
 </section>
 <script>

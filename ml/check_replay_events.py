@@ -1,7 +1,7 @@
 import re
 import pandas as pd
 
-ALERTS = "docs/results/replay_alerts_20261011.txt"
+import sys; ALERTS = sys.argv[1] if len(sys.argv) > 1 else "docs/results/replay_alerts_20261011.txt"
 LABELS = ["data/labels_run3_std.csv", "data/labels_run3_rep1_std.csv"]
 SLACK = pd.Timedelta(seconds=10)  # alerts may land just after an event ends
 KEYS = {"cpu": "CPU spike", "ram": "RAM jump",

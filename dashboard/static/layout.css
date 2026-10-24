@@ -1,4 +1,77 @@
-/* SysInsight dashboard layout (Nord) */
+/* ---------- Nord design tokens ---------- */
+:root {
+  /* Polar Night (backgrounds) */
+  --nord0: #2E3440;
+  --nord1: #3B4252;
+  --nord2: #434C5E;
+  --nord3: #4C566A;
+  /* Snow Storm (text) */
+  --nord4: #D8DEE9;
+  --nord5: #E5E9F0;
+  --nord6: #ECEFF4;
+  /* Frost (accents) */
+  --nord7: #8FBCBB;
+  --nord8: #88C0D0;
+  --nord9: #81A1C1;
+  --nord10: #5E81AC;
+  /* Aurora (status) */
+  --nord11: #BF616A;  /* red    - critical */
+  --nord12: #D08770;  /* orange - high */
+  --nord13: #EBCB8B;  /* yellow - warning / low */
+  --nord14: #A3BE8C;  /* green  - ok */
+  --nord15: #B48EAD;  /* purple */
+
+  /* Semantic names (for components) */
+  --bg:           var(--nord0);
+  --surface:      var(--nord1);
+  --border:       var(--nord3);
+  --text:         var(--nord4);
+  --text-strong:  var(--nord6);
+  --text-muted:   var(--nord9);
+  --accent:       var(--nord8);
+  --ok:           var(--nord14);
+  --warn:         var(--nord13);
+  --crit:         var(--nord11);
+
+  /* Spacing, shape, type */
+  --gap:      16px;
+  --pad:      16px;
+  --radius:   8px;
+  --font-sm:  0.8rem;
+  --font-md:  0.95rem;
+}
+
+/* ---------- Shared panel (card) ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--pad);
+  color: var(--text);
+  min-width: 0;            /* chart shrinks in grid cells */
+  overflow: hidden;
+}
+
+.panel-title {
+  margin: 0 0 12px 0;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Tables inside panels */
+.panel table { width: 100%; border-collapse: collapse; font-size: var(--font-md); }
+.panel th { text-align: left; font-size: var(--font-sm); color: var(--text-muted); font-weight: 600; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.panel td { padding: 6px 8px; border-bottom: 1px solid var(--nord2); }
+.panel tr:last-child td { border-bottom: none; }
+
+/* Status colours as classes (replaces inline style="color:...") */
+.text-ok   { color: var(--ok); }
+.text-warn { color: var(--warn); }
+.text-crit { color: var(--crit); }
+.text-muted { color: var(--text-muted); }/* SysInsight dashboard layout (Nord) */
 body {
   display: grid !important;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -10,10 +83,10 @@ body {
   align-items: start;
 }
 
-/* default: everything spans the full row (header, badge, cards, history chart) */
+/* default:  spanning the full row (header, badge, cards, history chart) */
 body > * { grid-column: 1 / -1; min-width: 0; }
 
-/* panels: reset the old inline margins/max-width so the grid controls spacing */
+/* panels:  inline margins reset /max-width so the grid controls spacing */
 #forecast-card, #alerts-panel, #proc-panel, #io-panel {
   margin: 0 !important;
   max-width: none !important;
@@ -32,3 +105,124 @@ body > * { grid-column: 1 / -1; min-width: 0; }
 @media (max-width: 900px) {
   #forecast-card, #alerts-panel, #proc-panel, #io-panel { grid-column: 1 / -1; }
 }
+
+/* ---- shared panel ---- */
+.panel {
+  margin: 16px auto;
+  max-width: 900px;
+  padding: 16px 20px;
+  background: var(--bg-panel, #3b4252);
+  color: var(--text, #d8dee9);
+  border: 1px solid var(--border, #4c566a);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.panel-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent, #88c0d0);
+}
+.meta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted, #81a1c1);
+}
+
+/* ---- forecast ---- */
+.fc-row { display: flex; gap: 40px; margin-top: 8px; align-items: flex-end; }
+.fc-label { font-size: 12px; color: var(--text, #d8dee9); }
+.fc-value { font-size: 32px; }
+.fc-value--now { color: var(--accent, #88c0d0); }
+.fc-value--pred { color: var(--warn, #ebcb8b); }
+
+/* ---- process table ---- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+/* ---- I/O charts ---- */
+.io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.chart-box { flex: 1 1 320px; height: 220px; }
+
+/* ---- shared panel ---- */
+.panel {
+  margin: 16px auto;
+  max-width: 900px;
+  padding: 16px 20px;
+  background: var(--bg-panel, #3b4252);
+  color: var(--text, #d8dee9);
+  border: 1px solid var(--border, #4c566a);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.panel-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent, #88c0d0);
+}
+.meta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted, #81a1c1);
+}
+
+/* ---- forecast ---- */
+.fc-row { display: flex; gap: 40px; margin-top: 8px; align-items: flex-end; }
+.fc-label { font-size: 12px; color: var(--text, #d8dee9); }
+.fc-value { font-size: 32px; }
+.fc-value--now { color: var(--accent, #88c0d0); }
+.fc-value--pred { color: var(--warn, #ebcb8b); }
+
+/* ---- process table ---- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+/* ---- I/O charts ---- */
+.io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.chart-box { flex: 1 1 320px; height: 220px; }
+
+/* ---- shared panel ---- */
+.panel {
+  margin: 16px auto;
+  max-width: 900px;
+  padding: 16px 20px;
+  background: var(--bg-panel, #3b4252);
+  color: var(--text, #d8dee9);
+  border: 1px solid var(--border, #4c566a);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.panel-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent, #88c0d0);
+}
+.meta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted, #81a1c1);
+}
+
+/* ---- forecast ---- */
+.fc-row { display: flex; gap: 40px; margin-top: 8px; align-items: flex-end; }
+.fc-label { font-size: 12px; color: var(--text, #d8dee9); }
+.fc-value { font-size: 32px; }
+.fc-value--now { color: var(--accent, #88c0d0); }
+.fc-value--pred { color: var(--warn, #ebcb8b); }
+
+/* ---- process table ---- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+/* ---- I/O charts ---- */
+.io-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.chart-box { flex: 1 1 320px; height: 220px; }
+
+/* Classes replacing inline styles set from JavaScript */
+.bar-fill { width: calc(var(--w, 0) * 1%); background: var(--c, #88c0d0); }
+.delta-up { color: #bf616a; }
+.delta-down { color: #a3be8c; }
+.delta-flat { color: #d8dee9; }
+.proc-th { text-align: left; padding: 6px 8px; border-bottom: 1px solid #4c566a; color: #88c0d0; }
+.proc-td { padding: 6px 8px; border-bottom: 1px solid #434c5e; }
+.history-panel { margin: 16px auto; max-width: 960px; }
+.history-title { margin: 0 0 8px; color: #d8dee9; font: 600 14px sans-serif; }

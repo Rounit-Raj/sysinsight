@@ -1,10 +1,9 @@
 (function () {
   const section = document.createElement('section');
   section.id = 'history-chart';
-  section.style.cssText =
-    'background:#3b4252;border-radius:8px;padding:16px;margin:16px auto;max-width:960px;';
+  section.className = 'panel history-panel';
   section.innerHTML =
-    '<h2 style="margin:0 0 8px;color:#d8dee9;font:600 14px sans-serif">CPU &amp; RAM, last 10 minutes</h2>' +
+    '<h2 class="history-title">CPU &amp; RAM, last 10 minutes</h2>' +
     '<canvas id="cpuRamChart" height="110"></canvas>';
   document.body.appendChild(section);
 
