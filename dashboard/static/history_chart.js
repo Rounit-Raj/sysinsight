@@ -3,7 +3,7 @@
   section.id = 'history-chart';
   section.className = 'panel history-panel';
   section.innerHTML =
-    '<h2 class="history-title">CPU &amp; RAM, last 10 minutes</h2>' +
+    '<h2 class="panel-title">CPU &amp; RAM, last 10 minutes</h2>' +
     '<canvas id="cpuRamChart" height="110"></canvas>';
   (document.querySelector('main.dashboard') || document.body).appendChild(section);
 
