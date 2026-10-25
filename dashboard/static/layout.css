@@ -139,3 +139,23 @@ main.dashboard > #alerts-panel {
     grid-column: 1 / -1;
   }
 }
+
+/* ---- Dashboard grid ---- */
+main.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  align-items: start;
+}
+
+/* wide panels span the full row */
+main.dashboard > .history-panel {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  main.dashboard {
+    grid-template-columns: 1fr;
+  }
+}
