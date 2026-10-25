@@ -31,3 +31,5 @@ data/*
 data/backups/
 data/.disk_load.tmp
 logs/
+dashboard/static/*.bak
+docs/results/sysinsight_pre_presentation.db
