@@ -114,3 +114,24 @@ main.dashboard > .history-panel { order: -1; }
 @media (max-width: 900px) {
   main.dashboard > * { grid-column: 1 / -1 !important; }
 }
+
+/* ---- Header bar ---- */
+#app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  background: #3b4252;
+  border-bottom: 1px solid #4c566a;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+#app-header .hdr-name { font-size: 20px; font-weight: 700; color: #eceff4; letter-spacing: 0.5px; }
+#app-header .hdr-sub { margin-left: 12px; font-size: 13px; color: #d8dee9; opacity: 0.7; }
+#app-header .hdr-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #d8dee9; }
+#app-header .hdr-time { opacity: 0.6; margin-left: 6px; }
+.hdr-dot { width: 10px; height: 10px; border-radius: 50%; background: #4c566a; }
+.hdr-dot.ok { background: #a3be8c; box-shadow: 0 0 6px #a3be8c; }
+.hdr-dot.bad { background: #bf616a; box-shadow: 0 0 6px #bf616a; }
