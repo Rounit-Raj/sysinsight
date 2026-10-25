@@ -136,42 +136,11 @@ main.dashboard > .history-panel { order: -1; }
 .hdr-dot.ok { background: #a3be8c; box-shadow: 0 0 6px #a3be8c; }
 .hdr-dot.bad { background: #bf616a; box-shadow: 0 0 6px #bf616a; }
 
-/* ---- Step 5: responsive ---- */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-@media (max-width: 900px) {
-  main.dashboard > * {
-    grid-column: 1 / -1 !important;
-  }
-}
-
-@media (max-width: 600px) {
-  main.dashboard {
-    padding: 12px;
-    gap: 12px;
-  }
-  .panel {
-    padding: 12px;
-  }
-}
-
-/* Stat cards row */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-}
-.cards .card { margin: 0; }
-
-/* ---- Stat cards (Step 5) ---- */
+/* ---- Step 5: stat cards + responsive (single source of truth) ---- */
 main.dashboard .cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sx-gap);
   grid-column: 1 / -1;
   margin: 0;
 }
@@ -192,14 +161,13 @@ main.dashboard .cards .card .value {
   font-size: 2.4rem;
   font-weight: 700;
   line-height: 1.1;
+  margin: 8px 0 12px;
 }
+
 @media (max-width: 800px) {
   main.dashboard .cards { grid-template-columns: 1fr; }
 }
-
-main.dashboard .cards .card .label + * {
-  font-size: 2.4rem;
-  font-weight: 700;
-  line-height: 1.1;
-  margin: 8px 0 12px;
+@media (max-width: 600px) {
+  main.dashboard { padding: 12px; gap: 12px; }
+  .panel { padding: 12px; }
 }
