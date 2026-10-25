@@ -135,3 +135,26 @@ main.dashboard > .history-panel { order: -1; }
 .hdr-dot { width: 10px; height: 10px; border-radius: 50%; background: #4c566a; }
 .hdr-dot.ok { background: #a3be8c; box-shadow: 0 0 6px #a3be8c; }
 .hdr-dot.bad { background: #bf616a; box-shadow: 0 0 6px #bf616a; }
+
+/* ---- Step 5: responsive ---- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  main.dashboard > * {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  main.dashboard {
+    padding: 12px;
+    gap: 12px;
+  }
+  .panel {
+    padding: 12px;
+  }
+}
