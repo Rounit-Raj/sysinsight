@@ -42,12 +42,10 @@
         const t = Date.parse(String(a.timestamp || a.time || a.ts || '').replace(' ', 'T'));
         return !isNaN(t) && now - t < 120000;
       });
-      const high = recent.some(a => /HIGH|CRIT/.test(String(a.severity || a.level || '').toUpperCase()));
-
       const reasons = [];
       let level = 0;
-      if (cpu >= 90 || ram >= 90 || high) level = 2;
-      else if (cpu >= 70 || ram >= 80 || recent.length > 0) level = 1;
+      if (cpu >= 95 || ram >= 95) level = 2;
+      else if (cpu >= 80 || ram >= 85 || recent.length > 0) level = 1;
       if (cpu >= 70) reasons.push('CPU ' + cpu.toFixed(0) + '%');
       if (ram >= 80) reasons.push('RAM ' + ram.toFixed(0) + '%');
       if (recent.length) reasons.push(recent.length + ' alert(s) in last 2 min');
