@@ -61,10 +61,10 @@ header h1 { margin: 0; font-size: 20px; color: var(--sx-accent); letter-spacing:
 #status.bad::before { content: "● "; color: var(--sx-bad); }
 
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sx-gap); }
-.card { background: var(--sx-surface); border: 1px solid var(--sx-border);
-        border-radius: var(--sx-radius); padding: 18px; }
-.label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--sx-text-dim); }
-.value { font-size: 40px; font-weight: 600; margin: 8px 0 12px; }
+.card { border-top: 3px solid var(--sx-blue); }
+.label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--sx-blue); }
+.value { font-size: 44px; font-weight: 600; line-height: 1; margin: 12px 0 16px; color: var(--sx-text-hi); font-variant-numeric: tabular-nums; }
+.value .unit { font-size: 18px; font-weight: 500; color: var(--sx-text-dim); margin-left: 2px; }
 .bar { height: 8px; background: var(--sx-surface-2); border-radius: 4px; overflow: hidden; }
 .fill { height: 100%; width: 0%; background: var(--sx-ok); transition: width .4s, background .4s; }
 .bar-fill { width: calc(var(--w) * 1%); background: var(--c); }

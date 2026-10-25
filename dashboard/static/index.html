@@ -32,7 +32,7 @@
 
   function setPct(id, v) {
     const val = Number(v);
-    document.getElementById(id + "-val").textContent = val.toFixed(1) + "%";
+    document.getElementById(id + "-val").innerHTML = val.toFixed(1) + "<span class=\"unit\">%</span>";
     const bar = document.getElementById(id + "-bar");
     bar.classList.add("bar-fill"); bar.style.setProperty("--w", Math.min(val, 100));
     bar.style.setProperty("--c", colorFor(val));
