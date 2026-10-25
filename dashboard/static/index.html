@@ -16,10 +16,6 @@
   </div>
 </header>
 
-<header>
-  <h1>SYSINSIGHT</h1>
-  <div id="status" class="bad">connecting…</div>
-</header>
 <main class="dashboard">
   <div class="cards">
     <div class="card panel"><div class="label">CPU</div>
@@ -43,7 +39,6 @@
   }
 
   async function refresh() {
-    const status = document.getElementById("status");
     try {
       const r = await fetch("/api/latest");
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -52,12 +47,7 @@
       setPct("cpu", d.cpu_percent);
       setPct("ram", d.ram_percent);
       document.getElementById("load-val").textContent = Number(d.load_avg_1min).toFixed(2);
-      document.getElementById("ts").textContent = d.timestamp;
-      status.textContent = "live";
-      status.className = "ok";
     } catch (e) {
-      status.textContent = "API unreachable";
-      status.className = "bad";
     }
   }
 
