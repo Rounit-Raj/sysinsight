@@ -94,6 +94,7 @@ def step(con, model, features, name):
     raw = float(model.predict(feats[features])[0])
     now = float(feats['cpu_percent'].iloc[0])
     pred = float(np.clip(BLEND * raw + (1 - BLEND) * now, 0, 100))
+    print(f"DEBUG: current={now:.2f}%, raw_model={raw:.2f}%, blended={pred:.2f}%")
     made_str = made_at.strftime(TS_FMT)
     target_str = (made_at + timedelta(seconds=HORIZON)).strftime(TS_FMT)
     if not con.execute("SELECT 1 FROM predictions WHERE made_at=?", (made_str,)).fetchone():

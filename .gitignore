@@ -30,3 +30,4 @@ data/*
 .venv/
 data/backups/
 data/.disk_load.tmp
+logs/
