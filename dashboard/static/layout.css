@@ -39,33 +39,6 @@
   color: var(--sx-accent);
 }
 
-/* Page grid: two columns, wide panels span both */
-main.dashboard {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sx-gap);
-  padding: 24px;
-  align-items: start;
-}
-main.dashboard > .cards,
-#history-chart,
-#proc-panel,
-#io-panel { grid-column: 1 / -1; }
-
-/* history chart is appended by JS at the end, so pull it up under the cards */
-main.dashboard > .cards { order: -2; }
-#history-chart { order: -1; }
-
-/* top stat cards match the panel look */
-.card { border-color: var(--sx-border); border-radius: var(--sx-radius); }
-
-@media (max-width: 900px) {
-  main.dashboard { grid-template-columns: 1fr; }
-}
-
-/* history panel: full width, directly under the stat cards */
-.history-panel { grid-column: 1 / -1; order: -1; }
-
 /* ---- moved from index.html inline styles ---- */
 
 /* aliases so older code using the previous variable names keeps working */
@@ -120,42 +93,24 @@ footer { padding: 0 24px 24px; font-size: 12px; color: var(--sx-text-dim); }
 .alert-msg { color: var(--sx-text-hi); }
 .alerts-empty { color: var(--sx-blue); padding: 8px 0; font-size: 13px; }
 
-/* ---- Dashboard grid ---- */
+/* ---- Dashboard grid (single source of truth) ---- */
 main.dashboard {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
-  padding: 16px;
-}
-main.dashboard > .panel {
-  grid-column: span 6;
-  margin: 0;
-}
-main.dashboard > #alerts-panel {
-  margin: 0;
-}
-@media (max-width: 900px) {
-  main.dashboard > .panel {
-    grid-column: 1 / -1;
-  }
-}
-
-/* ---- Dashboard grid ---- */
-main.dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 16px;
-  padding: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--sx-gap);
+  padding: 24px;
   align-items: start;
 }
+main.dashboard > .cards,
+main.dashboard > .history-panel { grid-column: 1 / -1; }
+main.dashboard > .cards { order: -2; }
+main.dashboard > .history-panel { order: -1; }
 
-/* wide panels span the full row */
-main.dashboard > .history-panel {
-  grid-column: 1 / -1;
-}
+#forecast-card { grid-column: span 5; }
+#alerts-panel  { grid-column: span 7; }
+#proc-panel    { grid-column: span 6; }
+#io-panel      { grid-column: span 6; }
 
 @media (max-width: 900px) {
-  main.dashboard {
-    grid-template-columns: 1fr;
-  }
+  main.dashboard > * { grid-column: 1 / -1 !important; }
 }
