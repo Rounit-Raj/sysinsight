@@ -158,3 +158,48 @@ main.dashboard > .history-panel { order: -1; }
     padding: 12px;
   }
 }
+
+/* Stat cards row */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+.cards .card { margin: 0; }
+
+/* ---- Stat cards (Step 5) ---- */
+main.dashboard .cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  grid-column: 1 / -1;
+  margin: 0;
+}
+main.dashboard .cards .card.panel {
+  margin: 0;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+main.dashboard .cards .card .label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+main.dashboard .cards .card .value {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+@media (max-width: 800px) {
+  main.dashboard .cards { grid-template-columns: 1fr; }
+}
+
+main.dashboard .cards .card .label + * {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 8px 0 12px;
+}
