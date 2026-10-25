@@ -99,11 +99,13 @@ setInterval(updateForecast, 5000);
 
 <!-- alerts-panel:start -->
 <section id="alerts-panel" class="panel">
-  <h2 class="panel-title">Alerts <span id="alerts-count">0</span></h2>
+  <h2 class="panel-title">Alerts (last 24 h) <span id="alerts-count">0</span></h2>
   <div id="alerts-list"><div class="alerts-empty">Loading...</div></div>
 </section>
 <script>
 (function () {
+  var MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
@@ -123,26 +125,58 @@ setInterval(updateForecast, 5000);
     if (s.indexOf('low') >= 0 || s.indexOf('info') >= 0) return 'sev-low';
     return 'sev-other';
   }
+  function parseTs(t) {
+    var d = new Date(String(t).replace(' ', 'T'));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function fmtTime(d, raw) {
+    if (!d) return String(raw);
+    var hms = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    var now = new Date();
+    if (d.toDateString() === now.toDateString()) return hms;
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' ' + hms;
+  }
+  function ageText(ms) {
+    var m = Math.floor(ms / 60000);
+    if (m < 60) return m + ' min ago';
+    var h = Math.floor(m / 60);
+    if (h < 48) return h + ' h ago';
+    return Math.floor(h / 24) + ' d ago';
+  }
   async function loadAlerts() {
     var list = document.getElementById('alerts-list');
     var count = document.getElementById('alerts-count');
     try {
-      var r = await fetch('/api/alerts?limit=20');
+      var r = await fetch('/api/alerts?limit=50');
       var data = await r.json();
-      var alerts = Array.isArray(data) ? data : (data.alerts || []);
-      count.textContent = alerts.length;
-      if (alerts.length === 0) {
-        list.innerHTML = '<div class="alerts-empty">No alerts</div>';
+      var all = Array.isArray(data) ? data : (data.alerts || []);
+      var now = Date.now();
+      var recent = [];
+      var newestAge = null;
+      all.forEach(function (a) {
+        var raw = pick(a, ['timestamp', 'time', 'ts', 'created_at']);
+        var d = parseTs(raw);
+        if (!d) { recent.push({ a: a, d: null, raw: raw }); return; }
+        var age = now - d.getTime();
+        if (newestAge === null || age < newestAge) newestAge = age;
+        if (age <= MAX_AGE_MS) recent.push({ a: a, d: d, raw: raw });
+      });
+      recent = recent.slice(0, 20);
+      count.textContent = recent.length;
+      if (recent.length === 0) {
+        list.innerHTML = '<div class="alerts-empty">No alerts in the last 24 h' +
+          (newestAge !== null ? ' (newest: ' + esc(ageText(newestAge)) + ')' : '') + '</div>';
         return;
       }
-      list.innerHTML = alerts.map(function (a) {
-        var t = pick(a, ['timestamp', 'time', 'ts', 'created_at']);
+      list.innerHTML = recent.map(function (item) {
+        var a = item.a;
         var sev = pick(a, ['severity', 'level']);
         var kind = pick(a, ['type', 'rule', 'kind', 'category', 'name']);
         var msg = pick(a, ['message', 'description', 'detail', 'details', 'text']);
         if (!msg && !kind) msg = JSON.stringify(a);
         return '<div class="alert-row">' +
-          '<span class="alert-time">' + esc(t) + '</span>' +
+          '<span class="alert-time">' + esc(fmtTime(item.d, item.raw)) + '</span>' +
           (sev ? '<span class="alert-sev ' + sevClass(sev) + '">' + esc(sev) + '</span>' : '') +
           (kind ? '<span class="alert-kind">' + esc(kind) + '</span>' : '') +
           '<span class="alert-msg">' + esc(msg) + '</span></div>';
