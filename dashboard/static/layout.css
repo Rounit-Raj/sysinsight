@@ -53,13 +53,6 @@
 body { margin: 0; background: var(--sx-bg); color: var(--sx-text);
        font-family: system-ui, "Segoe UI", sans-serif; }
 
-header { display: flex; justify-content: space-between; align-items: center;
-         padding: 16px 24px; background: var(--sx-surface); border-bottom: 1px solid var(--sx-border); }
-header h1 { margin: 0; font-size: 20px; color: var(--sx-accent); letter-spacing: 1px; }
-#status { font-size: 13px; color: var(--sx-text-dim); }
-#status.ok::before  { content: "● "; color: var(--sx-ok); }
-#status.bad::before { content: "● "; color: var(--sx-bad); }
-
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sx-gap); }
 .card { border-top: 3px solid var(--sx-blue); }
 .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--sx-blue); }
@@ -69,18 +62,24 @@ header h1 { margin: 0; font-size: 20px; color: var(--sx-accent); letter-spacing:
 .fill { height: 100%; width: 0%; background: var(--sx-ok); transition: width .4s, background .4s; }
 .bar-fill { width: calc(var(--w) * 1%); background: var(--c); }
 
+/* ---- Forecast panel ---- */
 .fc-row { display: flex; gap: 32px; margin-bottom: 8px; }
-.fc-label { font-size: 11px; color: var(--sx-text-dim); text-transform: uppercase; }
-.fc-value { font-size: 28px; font-weight: 600; }
+.fc-label { font-size: 11px; color: var(--sx-text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.fc-value { font-size: 28px; font-weight: 600; color: var(--sx-text-hi); font-variant-numeric: tabular-nums; }
 .fc-value--now { color: var(--sx-ok); }
 .fc-value--pred { color: var(--sx-accent); }
+.delta-up   { color: var(--sx-warn); }
+.delta-down { color: var(--sx-ok); }
+.delta-flat { color: var(--sx-text-dim); }
+
+.meta { margin-top: 10px; font-size: 12px; color: var(--sx-text-dim); }
 
 footer { padding: 0 24px 24px; font-size: 12px; color: var(--sx-text-dim); }
 
-/* alerts panel */
+/* ---- Alerts panel ---- */
 #alerts-panel h2 { display: flex; justify-content: space-between; align-items: center; }
 #alerts-count { background: var(--sx-surface-2); color: var(--sx-text); border-radius: 10px; padding: 2px 10px; font-size: 12px; }
-#alerts-list { max-height: 320px; overflow-y: auto; }
+#alerts-list { max-height: 320px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--sx-border) transparent; }
 .alert-row { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--sx-surface-2); font-size: 13px; }
 .alert-row:last-child { border-bottom: none; }
 .alert-time { color: var(--sx-blue); font-family: monospace; white-space: nowrap; }
@@ -92,6 +91,31 @@ footer { padding: 0 24px 24px; font-size: 12px; color: var(--sx-text-dim); }
 .alert-kind { color: var(--sx-text); font-weight: 600; white-space: nowrap; }
 .alert-msg { color: var(--sx-text-hi); }
 .alerts-empty { color: var(--sx-blue); padding: 8px 0; font-size: 13px; }
+
+/* ---- Process table ---- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.proc-th {
+  text-align: left;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sx-text-dim);
+  border-bottom: 1px solid var(--sx-border);
+}
+.proc-td {
+  padding: 8px;
+  color: var(--sx-text-hi);
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--sx-surface-2);
+}
+.data-table tbody tr:last-child .proc-td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--sx-surface-2); }
+
+/* ---- Disk & network I/O charts ---- */
+.io-grid { display: grid; grid-template-columns: 1fr; gap: var(--sx-gap); }
+.chart-box { position: relative; height: 170px; }
 
 /* ---- Dashboard grid (single source of truth) ---- */
 main.dashboard {
@@ -136,7 +160,7 @@ main.dashboard > .history-panel { order: -1; }
 .hdr-dot.ok { background: #a3be8c; box-shadow: 0 0 6px #a3be8c; }
 .hdr-dot.bad { background: #bf616a; box-shadow: 0 0 6px #bf616a; }
 
-/* ---- Step 5: stat cards + responsive (single source of truth) ---- */
+/* ---- Stat cards ---- */
 main.dashboard .cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
