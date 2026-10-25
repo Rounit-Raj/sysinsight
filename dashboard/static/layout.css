@@ -119,3 +119,23 @@ footer { padding: 0 24px 24px; font-size: 12px; color: var(--sx-text-dim); }
 .alert-kind { color: var(--sx-text); font-weight: 600; white-space: nowrap; }
 .alert-msg { color: var(--sx-text-hi); }
 .alerts-empty { color: var(--sx-blue); padding: 8px 0; font-size: 13px; }
+
+/* ---- Dashboard grid ---- */
+main.dashboard {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+main.dashboard > .panel {
+  grid-column: span 6;
+  margin: 0;
+}
+main.dashboard > #alerts-panel {
+  margin: 0;
+}
+@media (max-width: 900px) {
+  main.dashboard > .panel {
+    grid-column: 1 / -1;
+  }
+}
